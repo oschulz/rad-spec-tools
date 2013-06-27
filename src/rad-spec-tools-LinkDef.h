@@ -3,6 +3,9 @@
 
 #ifdef __CINT__
 
+// SDPeak.h
+#pragma link C++ class rspt::SDPeak-;
+#pragma link C++ class rspt::MultiPeakShape-;
 
 #endif
 
