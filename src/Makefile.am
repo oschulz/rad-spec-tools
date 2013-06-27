@@ -3,32 +3,32 @@ MAINTAINERCLEANFILES = Makefile.in
 
 # EXTRA_DIST = some extra files, e.g. test-data
 
-lib_LTLIBRARIES = libtemplate-project.la
+lib_LTLIBRARIES = librad-spec-tools.la
 
-libtemplate_project_la_SOURCES = \
+librad_spec_tools_la_SOURCES = \
 	HelloWorld.cxx
 
-libtemplate_project_la_headers = \
+librad_spec_tools_la_headers = \
 	HelloWorld.h
 
-pkginclude_HEADERS = $(libtemplate_project_la_headers)
+pkginclude_HEADERS = $(librad_spec_tools_la_headers)
 
-bin_PROGRAMS = template-project
+bin_PROGRAMS = rad-spec-tools
 
 noinst_PROGRAMS =
 
-template_project_SOURCES = template-project.cxx
-template_project_LDADD = libtemplate-project.la
-# template_project_LDFLAGS = -static
+rad_spec_tools_SOURCES = rad-spec-tools.cxx
+rad_spec_tools_LDADD = librad-spec-tools.la
+# rad_spec_tools_LDFLAGS = -static
 
 
-libtemplate_project_la_SOURCES += libtemplate-project-rdict.cxx
+librad_spec_tools_la_SOURCES += librad-spec-tools-rdict.cxx
 
-libtemplate-project-rdict.cxx: $(libtemplate_project_la_headers) template-project-LinkDef.h
+librad-spec-tools-rdict.cxx: $(librad_spec_tools_la_headers) rad-spec-tools-LinkDef.h
 	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) $+
 
 rootmapdir = $(libdir)
-rootmap_DATA = .libs/libtemplate-project.rootmap
+rootmap_DATA = .libs/librad-spec-tools.rootmap
 
-.libs/libtemplate-project.rootmap: libtemplate-project.la | $(libtemplate_project_la_headers) template-project-LinkDef.h
-	$(RLIBMAP) -o $@ -l .libs/libtemplate-project@SHLIBEXT@ -c $|
+.libs/librad-spec-tools.rootmap: librad-spec-tools.la | $(librad_spec_tools_la_headers) rad-spec-tools-LinkDef.h
+	$(RLIBMAP) -o $@ -l .libs/librad-spec-tools@SHLIBEXT@ -c $|

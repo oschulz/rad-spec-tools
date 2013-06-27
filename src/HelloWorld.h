@@ -1,4 +1,4 @@
-// Copyright (C) YEAR AUTHOR <EMAIL>
+// Copyright (C) 2013 Oliver Schulz <oliver.schulz@tu-dortmund.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,7 @@
 #include <Rtypes.h>
 
 
-namespace tmplns {
+namespace rspt {
 
 
 class HelloWorld {
@@ -33,6 +33,6 @@ public:
 };
 
 
-} // namespace tmplns
+} // namespace rspt
 
 #endif // HELLOWORLD_H
