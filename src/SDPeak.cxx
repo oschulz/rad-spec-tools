@@ -40,7 +40,7 @@ double SDPeak::skewedGauss(double x, double sigma, double skewWidth) {
 
 
 double SDPeak::stepWithSigma(double x, double sigma)
-	{ return 0.5 * erfc( x / (sqrt(sigma) * sigma) ); }
+	{ return 0.5 * erfc( x / (sqrt(2) * sigma) ); }
 
 
 double SDPeak::peakShape(double x, double center, double area, double sigma, double stepAmpl, double skewFraction, double skewWidth) {
