@@ -47,12 +47,12 @@ TSpectrum* HistAnalysis::findPeaks(TH1 *hist, Option_t* option, double sigma, do
 }
 
 
-TSpectrum* HistAnalysis::findSigPeaks(TH1 *hist, Option_t* option, double sigma, double threshold, Int_t nBgIter) {
+TSpectrum* HistAnalysis::findSigPeaks(TH1 *hist, Option_t* option, double sigma, double threshold, Int_t nBgIter, double sigThresh) {
 	TSpectrum *spec = new TSpectrum();
 
 	TH1 *fg = dynamic_cast<TH1*>(hist->Clone());
 
-	HistAnalysis::removeBackground(fg, "", nBgIter);
+	HistAnalysis::removeBackground(fg, "", nBgIter, sigThresh);
 	HistAnalysis::filterMinOf3(fg);
 
 	spec->Search(fg, sigma, option, threshold);

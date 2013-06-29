@@ -32,7 +32,7 @@ class HistAnalysis {
 public:
 	static TSpectrum* findPeaks(TH1 *hist, Option_t* option = "goff", double sigma = 4.0, double threshold = 0.1);
 
-	static TSpectrum* findSigPeaks(TH1 *hist, Option_t* option = "goff", double sigma = 4.0, double threshold = 0.01, Int_t nBgIter = 10);
+	static TSpectrum* findSigPeaks(TH1 *hist, Option_t* option = "goff", double sigma = 4.0, double threshold = 0.01, Int_t nBgIter = 10, double sigThresh = 3.5);
 
 	static TF1* fitPeaks(TH1 *hist, TSpectrum *peaks, Option_t* option = "", Option_t* goption = "", bool enableSkew = true, const char* bgModel = "pol2");
 
