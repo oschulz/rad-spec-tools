@@ -56,7 +56,7 @@ class MultiPeakShape: public ROOT::Math::ParamFunctor {
 protected:
 	Int_t m_nPeaks;
 	bool m_skewEnabled;
-	TF1 *m_bkg;
+	TF1 *m_bg;
 
 public:
 	Int_t nPeaks() const { return m_nPeaks; }
@@ -65,7 +65,7 @@ public:
 
 	TF1* newTF1(const char* name, TSpectrum *spectrum = 0);
 
-	MultiPeakShape(Int_t n, bool enableSkew = true, TF1* bkgModel = 0);
+	MultiPeakShape(Int_t n, bool enableSkew = true, TF1* bgModel = 0);
 };
 
 

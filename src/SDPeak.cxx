@@ -62,9 +62,9 @@ SDPeak::~SDPeak() {
 
 double MultiPeakShape::operator()(double *x, double* p) {
 	double result = 0;
-	if (m_bkg != 0) {
-		result = (*m_bkg)(x, p);
-		p += m_bkg->GetNpar();
+	if (m_bg != 0) {
+		result = (*m_bg)(x, p);
+		p += m_bg->GetNpar();
 	}
 	for (int i = 0; i < m_nPeaks; ++i) {
 		double center = *p++, area = *p++, sigma = *p++, stepAmpl = *p++;
@@ -82,19 +82,19 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum) {
 
 	static const int nPeakPar = m_skewEnabled ? 6 : 4;
 
-	Int_t nBkgPar = (m_bkg != 0) ? m_bkg->GetNpar() : 0;
-	TF1 *tf = new TF1(name, *this, 0, 16.0 + 16.0 * m_nPeaks , nBkgPar + m_nPeaks * nPeakPar);
+	Int_t nBgPar = (m_bg != 0) ? m_bg->GetNpar() : 0;
+	TF1 *tf = new TF1(name, *this, 0, 16.0 + 16.0 * m_nPeaks , nBgPar + m_nPeaks * nPeakPar);
 	tf->SetNpx(1000);
 
-	for (Int_t i = 0; i < nBkgPar; ++i) {
-		tf->SetParName(i, TString::Format("bkg_%s", m_bkg->GetParName(i)));
-		tf->SetParameter(i, m_bkg->GetParameter(i));
+	for (Int_t i = 0; i < nBgPar; ++i) {
+		tf->SetParName(i, TString::Format("bg_%s", m_bg->GetParName(i)));
+		tf->SetParameter(i, m_bg->GetParameter(i));
 		double a, b;
-		m_bkg->GetParLimits(i, a, b);
+		m_bg->GetParLimits(i, a, b);
 		tf->SetParLimits(i, a, b);
 	}
 
-	Int_t p = nBkgPar;
+	Int_t p = nBgPar;
 
 	for (Int_t i = 0; i < m_nPeaks; ++i) {
 		double center = (i+1) * 16.0;
@@ -139,8 +139,8 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum) {
 }
 
 
-MultiPeakShape::MultiPeakShape(Int_t n, bool enableSkew, TF1* bkgModel)
-	: m_nPeaks(n), m_skewEnabled(enableSkew), m_bkg(bkgModel)
+MultiPeakShape::MultiPeakShape(Int_t n, bool enableSkew, TF1* bgModel)
+	: m_nPeaks(n), m_skewEnabled(enableSkew), m_bg(bgModel)
 {
 	if (m_nPeaks < 0) throw invalid_argument("Number of peaks must be >= 0");
 }
