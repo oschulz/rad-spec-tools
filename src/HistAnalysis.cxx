@@ -64,4 +64,20 @@ TF1* HistAnalysis::findAndFitPeaks(TH1 *hist, Option_t* option, Option_t* goptio
 }
 
 
+void HistAnalysis::filterMinOf3(TH1 *hist) {
+	Int_t n = hist->GetNbinsX();
+	if (n < 2) return;
+
+	double last2 = hist->GetBinContent(1);
+	double last1 = last2;
+
+	for (Int_t i = 2; i <= n+1; ++i) {
+		double current = (i<=n) ? hist->GetBinContent(i) : last1;
+		hist->SetBinContent(i-1, std::min(current, std::min(last1,last2)));
+		last2 = last1;
+		last1 = current;
+	}
+}
+
+
 } // namespace rspt
