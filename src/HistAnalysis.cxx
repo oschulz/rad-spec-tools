@@ -21,6 +21,7 @@
 #include <limits>
 #include <stdexcept>
 #include <cmath>
+#include <memory>
 
 #include <TSpectrum.h>
 
@@ -46,6 +47,19 @@ TSpectrum* HistAnalysis::findPeaks(TH1 *hist, Option_t* option, double sigma, do
 }
 
 
+TSpectrum* HistAnalysis::findSigPeaks(TH1 *hist, Option_t* option, double sigma, double threshold, Int_t nBgIter) {
+	TSpectrum *spec = new TSpectrum();
+
+	TH1 *fg = dynamic_cast<TH1*>(hist->Clone());
+
+	HistAnalysis::removeBackground(fg, "", nBgIter);
+	HistAnalysis::filterMinOf3(fg);
+
+	spec->Search(fg, sigma, option, threshold);
+	return spec;
+}
+
+
 TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Option_t* goption, bool enableSkew, const char* bkgModel) {
 	TF1* bkgFunc = new TF1("bkgModel", bkgModel, 0, 10);
 	MultiPeakShape peakShape(spectrum->GetNPeaks(), enableSkew, bkgFunc);
@@ -64,18 +78,39 @@ TF1* HistAnalysis::findAndFitPeaks(TH1 *hist, Option_t* option, Option_t* goptio
 }
 
 
+void HistAnalysis::removeBackground(TH1 *hist, Option_t* option, Int_t nBgIter, double threshold) {
+	Int_t n = hist->GetNbinsX();
+
+	auto_ptr<TSpectrum> spec = auto_ptr<TSpectrum>(new TSpectrum);
+
+	auto_ptr<TH1> bkg = auto_ptr<TH1>(spec->Background(hist, nBgIter, option));
+
+	// Remove non-significant signal
+	for (Int_t i = 1; i <= n; i++) {
+		double fv = hist->GetBinContent(i);
+		double bv = bkg->GetBinContent(i);
+		double sv = fv - bv;
+
+		// Transition from 0 to sv within one sigma around threshold:
+		sv = sv * (0.5 + TMath::Erf(4 * (sv / sqrt(bv) - threshold) )/2.);
+
+		hist->SetBinContent(i, sv > 0 ? sv : 0);
+	}
+}
+
+
 void HistAnalysis::filterMinOf3(TH1 *hist) {
 	Int_t n = hist->GetNbinsX();
-	if (n < 2) return;
+	if (n >= 2) {
+		double last2 = hist->GetBinContent(1);
+		double last1 = last2;
 
-	double last2 = hist->GetBinContent(1);
-	double last1 = last2;
-
-	for (Int_t i = 2; i <= n+1; ++i) {
-		double current = (i<=n) ? hist->GetBinContent(i) : last1;
-		hist->SetBinContent(i-1, std::min(current, std::min(last1,last2)));
-		last2 = last1;
-		last1 = current;
+		for (Int_t i = 2; i <= n+1; ++i) {
+			double current = (i<=n) ? hist->GetBinContent(i) : last1;
+			hist->SetBinContent(i-1, std::min(current, std::min(last1,last2)));
+			last2 = last1;
+			last1 = current;
+		}
 	}
 }
 
