@@ -115,4 +115,32 @@ void HistAnalysis::filterMinOf3(TH1 *hist) {
 }
 
 
+void HistAnalysis::copyBins(std::vector<double> &dest, const TH1 *src) {
+	Int_t n = src->GetNbinsX();
+	dest.resize(n);
+	for (int i=0; i<n; ++i) dest[i] = src->GetBinContent(i+1);
+}
+
+
+void HistAnalysis::copyBins(TH1 *dest, const std::vector<double> &src) {
+	Int_t n = src.size();
+	if (n != dest->GetNbinsX()) throw invalid_argument("Number of bins in dest histogram must match size of src vector");
+	for (int i=0; i<n; ++i) dest->SetBinContent(i+1, src[i]);
+}
+
+
+void HistAnalysis::copyBins(std::vector<float> &dest, const TH1 *src) {
+	Int_t n = src->GetNbinsX();
+	dest.resize(n);
+	for (int i=0; i<n; ++i) dest[i] = src->GetBinContent(i+1);
+}
+
+
+void HistAnalysis::copyBins(TH1 *dest, const std::vector<float> &src) {
+	Int_t n = src.size();
+	if (n != dest->GetNbinsX()) throw invalid_argument("Number of bins in dest histogram must match size of src vector");
+	for (int i=0; i<n; ++i) dest->SetBinContent(i+1, src[i]);
+}
+
+
 } // namespace rspt

@@ -18,6 +18,8 @@
 #ifndef RSPT_HISTANALYSIS_H
 #define RSPT_HISTANALYSIS_H
 
+#include <vector>
+
 #include <TH1.h>
 #include <TF1.h>
 #include <TSpectrum.h>
@@ -39,6 +41,14 @@ public:
 	static void removeBackground(TH1 *hist, Option_t* option = "", Int_t nBgIter = 10, double threshold = 3.5);
 
 	static void filterMinOf3(TH1 *hist);
+
+	static void copyBins(std::vector<double> &dest, const TH1 *src);
+
+	static void copyBins(TH1 *src, const std::vector<double> &dest);
+
+	static void copyBins(std::vector<float> &dest, const TH1 *src);
+
+	static void copyBins(TH1 *src, const std::vector<float> &dest);
 };
 
 
