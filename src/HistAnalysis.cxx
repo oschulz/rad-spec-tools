@@ -60,19 +60,19 @@ TSpectrum* HistAnalysis::findSigPeaks(TH1 *hist, Option_t* option, double sigma,
 }
 
 
-TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Option_t* goption, bool enableSkew, const char* bkgModel) {
-	TF1* bkgFunc = new TF1("bkgModel", bkgModel, 0, 10);
-	MultiPeakShape peakShape(spectrum->GetNPeaks(), enableSkew, bkgFunc);
+TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Option_t* goption, bool enableSkew, const char* bgModel) {
+	TF1* bgFunc = new TF1("bgModel", bgModel, 0, 10);
+	MultiPeakShape peakShape(spectrum->GetNPeaks(), enableSkew, bgFunc);
 	TF1* sdpeaks = peakShape.newTF1("sdpeaks", spectrum);
 	hist->Fit("sdpeaks", option, goption);
 	return sdpeaks;
 }
 
 
-TF1* HistAnalysis::findAndFitPeaks(TH1 *hist, Option_t* option, Option_t* goption, double sigma, double threshold, bool enableSkew, const char* bkgModel) {
+TF1* HistAnalysis::findAndFitPeaks(TH1 *hist, Option_t* option, Option_t* goption, double sigma, double threshold, bool enableSkew, const char* bgModel) {
 	TSpectrum *spectrum = findPeaks(hist, "goff", sigma, threshold);
 	// for (Int_t pIdx = 0; pIdx < spec->GetNPeaks(); ++pIdx) cout << "Found peak at " << spec->GetPositionX()[pIdx] << " with height " << spec->GetPositionY()[pIdx] << endl;
-	TF1 *sdpeaks = fitPeaks(hist, spectrum, option, goption, enableSkew, bkgModel);
+	TF1 *sdpeaks = fitPeaks(hist, spectrum, option, goption, enableSkew, bgModel);
 	delete spectrum;
 	return sdpeaks;
 }
@@ -83,12 +83,12 @@ void HistAnalysis::removeBackground(TH1 *hist, Option_t* option, Int_t nBgIter, 
 
 	auto_ptr<TSpectrum> spec = auto_ptr<TSpectrum>(new TSpectrum);
 
-	auto_ptr<TH1> bkg = auto_ptr<TH1>(spec->Background(hist, nBgIter, option));
+	auto_ptr<TH1> bg = auto_ptr<TH1>(spec->Background(hist, nBgIter, option));
 
 	// Remove non-significant signal
 	for (Int_t i = 1; i <= n; i++) {
 		double fv = hist->GetBinContent(i);
-		double bv = bkg->GetBinContent(i);
+		double bv = bg->GetBinContent(i);
 		double sv = fv - bv;
 
 		// Transition from 0 to sv within one sigma around threshold:

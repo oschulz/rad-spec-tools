@@ -34,9 +34,9 @@ public:
 
 	static TSpectrum* findSigPeaks(TH1 *hist, Option_t* option = "goff", double sigma = 4.0, double threshold = 0.01, Int_t nBgIter = 10);
 
-	static TF1* fitPeaks(TH1 *hist, TSpectrum *peaks, Option_t* option = "", Option_t* goption = "", bool enableSkew = true, const char* bkgModel = "pol2");
+	static TF1* fitPeaks(TH1 *hist, TSpectrum *peaks, Option_t* option = "", Option_t* goption = "", bool enableSkew = true, const char* bgModel = "pol2");
 
-	static TF1* findAndFitPeaks(TH1 *hist, Option_t* option = "", Option_t* goption = "", double sigma = 4.0, double threshold = 0.1, bool enableSkew = true, const char* bkgModel = "pol2");
+	static TF1* findAndFitPeaks(TH1 *hist, Option_t* option = "", Option_t* goption = "", double sigma = 4.0, double threshold = 0.1, bool enableSkew = true, const char* bgModel = "pol2");
 
 	static void removeBackground(TH1 *hist, Option_t* option = "", Int_t nBgIter = 10, double threshold = 3.5);
 
