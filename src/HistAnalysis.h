@@ -36,6 +36,8 @@ public:
 
 	static TF1* fitPeaks(TH1 *hist, TSpectrum *peaks, Option_t* option = "", Option_t* goption = "", bool enableSkew = true, const char* bgModel = "pol2");
 
+	static TF1* fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHist = 0);
+
 	static TF1* findAndFitPeaks(TH1 *hist, Option_t* option = "", Option_t* goption = "", double sigma = 4.0, double threshold = 0.1, bool enableSkew = true, const char* bgModel = "pol2");
 
 	static void removeBackground(TH1 *hist, Option_t* option = "", Int_t nBgIter = 10, double threshold = 3.5);

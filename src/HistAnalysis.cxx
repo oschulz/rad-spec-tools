@@ -24,6 +24,7 @@
 #include <memory>
 
 #include <TSpectrum.h>
+#include <TSpectrumFit.h>
 
 #include <froast/Settings.h>
 
@@ -67,6 +68,55 @@ TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Op
 	hist->Fit("sdpeaks", option, goption);
 	return sdpeaks;
 }
+
+
+TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHist) {
+	TAxis *xAxis = hist->GetXaxis();
+	Int_t from = xAxis->GetFirst();
+	Int_t to = xAxis->GetLast();
+	Int_t nbins = to - from + 1;
+
+	float* histData = new float[nbins];
+	for (Int_t i = 0; i < nbins; ++i) histData[i] = hist->GetBinContent(i + from);
+
+	Int_t nfound = spectrum->GetNPeaks();
+
+	Float_t *initialPos = new Float_t[nfound];
+	Bool_t *fixPos = new Bool_t[nfound];
+	Float_t *initialAmpl = new Float_t[nfound];
+	Bool_t *fixAmpl = new Bool_t[nfound];
+	for (Int_t i = 0; i < nfound; i++) {
+		initialPos[i] = hist->GetXaxis()->FindBin(spectrum->GetPositionX()[i]) - 1;
+		fixPos[i] = false;
+		initialAmpl[i] = spectrum->GetPositionY()[i];
+		fixAmpl[i] = false;	 
+	}	
+
+	TSpectrumFit *pfit = new TSpectrumFit(nfound);
+	pfit->SetBackgroundParameters(0, false, 0, false, 0, false);
+	pfit->SetFitParameters(0, nbins - 1, 1000, 0.1, pfit->kFitOptimChiCounts, pfit->kFitAlphaHalving, pfit->kFitPower2, pfit->kFitTaylorOrderFirst);	
+	pfit->SetPeakParameters(2, false, initialPos, fixPos, initialAmpl, fixAmpl);	
+
+	pfit->FitAwmi(histData);
+	//pfit->FitStiefel(histData);
+
+	if (fitHist != 0) {
+		if (*fitHist == 0) *fitHist = dynamic_cast<TH1*>(hist->Clone());
+		TH1 *target = *fitHist;
+		Int_t n = target->GetNbinsX();
+		for (Int_t i = 0; i < n; ++i) target->SetBinContent(i + 1, 0);
+		for (Int_t i = 0; i < nbins; ++i) target->SetBinContent(i + from, histData[i]);
+	}
+	
+	delete [] histData;
+	delete [] initialPos;
+	delete [] fixPos;
+	delete [] initialAmpl;
+	delete [] fixAmpl;
+	
+	return 0; //!! TODO: Generate fit-result TF1
+}
+
 
 
 TF1* HistAnalysis::findAndFitPeaks(TH1 *hist, Option_t* option, Option_t* goption, double sigma, double threshold, bool enableSkew, const char* bgModel) {
