@@ -18,7 +18,10 @@
 #ifndef RSPT_SDPEAKTSF_H
 #define RSPT_SDPEAKTSF_H
 
-#include <Rtypes.h>
+#include <TF1.h>
+#include <TMath.h>
+#include <TAxis.h>
+#include <TSpectrumFit.h>
 
 
 namespace rspt {
@@ -43,6 +46,23 @@ public:
 
 	SDPeakTSF();
 	virtual ~SDPeakTSF();
+};
+
+
+
+class MultiPeakShapeTSF: public ROOT::Math::ParamFunctor {
+protected:
+	Int_t m_nPeaks;
+	bool m_skewEnabled;
+
+public:
+	Int_t nPeaks() const { return m_nPeaks; }
+
+	double operator()(double* x, double* p);
+
+	TF1* newTF1(const char* name, const TAxis *xAxis, TSpectrumFit *tsf) const;
+
+	MultiPeakShapeTSF(Int_t n, bool enableSkew = true);
 };
 
 

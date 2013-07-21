@@ -29,6 +29,7 @@
 #include <froast/Settings.h>
 
 #include "SDPeak.h"
+#include "SDPeakTSF.h"
 
 using namespace std;
 using namespace froast;
@@ -70,14 +71,14 @@ TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Op
 }
 
 
-TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHist) {
+TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHist, TSpectrumFit** resultTSF) {
 	TAxis *xAxis = hist->GetXaxis();
-	Int_t from = xAxis->GetFirst();
-	Int_t to = xAxis->GetLast();
-	Int_t nbins = to - from + 1;
+	Int_t fromBin = xAxis->GetFirst();
+	Int_t toBin = xAxis->GetLast();
+	Int_t nbins = toBin - fromBin + 1;
 
 	float* histData = new float[nbins];
-	for (Int_t i = 0; i < nbins; ++i) histData[i] = hist->GetBinContent(i + from);
+	for (Int_t i = 0; i < nbins; ++i) histData[i] = hist->GetBinContent(i + fromBin);
 
 	Int_t nfound = spectrum->GetNPeaks();
 
@@ -105,7 +106,7 @@ TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHi
 		TH1 *target = *fitHist;
 		Int_t n = target->GetNbinsX();
 		for (Int_t i = 0; i < n; ++i) target->SetBinContent(i + 1, 0);
-		for (Int_t i = 0; i < nbins; ++i) target->SetBinContent(i + from, histData[i]);
+		for (Int_t i = 0; i < nbins; ++i) target->SetBinContent(i + fromBin, histData[i]);
 	}
 	
 	delete [] histData;
@@ -113,8 +114,13 @@ TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHi
 	delete [] fixPos;
 	delete [] initialAmpl;
 	delete [] fixAmpl;
+
+	TF1* fitFunc = MultiPeakShapeTSF(nfound, true).newTF1("", xAxis, pfit);
 	
-	return 0; //!! TODO: Generate fit-result TF1
+	if (resultTSF != 0) *resultTSF = pfit;
+	else delete pfit;
+
+	return fitFunc;
 }
 
 

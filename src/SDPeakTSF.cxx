@@ -17,6 +17,7 @@
 
 #include "SDPeakTSF.h"
 
+#include <stdexcept>
 #include <cmath>
 
 
@@ -81,6 +82,90 @@ SDPeakTSF::SDPeakTSF() {
 
 
 SDPeakTSF::~SDPeakTSF() {
+}
+
+
+
+double MultiPeakShapeTSF::operator()(double *x, double* p) {
+	double result = 0;
+
+	// Quadradic background:
+	double bg0 = *p++, bg1 = *p++, bg2 = *p++;
+	result += bg0 + (*x) * bg1 + (*x)*(*x) * bg2;
+
+	// Peak sigma and tail step:
+	double sigma = *p++, step = *p++;
+
+	// Optional skewed-gaussian tail parameters t and b:
+	double t = 0, b = 0;
+	if (m_skewEnabled) { t = *p++; b = *p++; }
+
+	for (int i = 0; i < m_nPeaks; ++i) {
+		double pos = *p++, ampl = *p++;
+		result += SDPeakTSF::shape(*x, pos, ampl, sigma, t, b, step);
+	}
+	return result;
+}
+
+
+TF1* MultiPeakShapeTSF::newTF1(const char* name, const TAxis *xAxis, TSpectrumFit *tsf) const {
+	// double maxPos = numeric_limits<double>::max();
+	// double maxPos = 1e10;
+
+	Double_t from = xAxis->GetXmin();
+	Double_t to = xAxis->GetXmax();
+	Int_t fromBin = xAxis->GetFirst();
+	Int_t toBin = xAxis->GetLast();
+	Double_t scale = (from - to) / (fromBin - toBin);
+	
+	Double_t bg0 = 0, bg0Err = 0, bg1 = 0, bg1Err = 0, bg2 = 0, bg2Err = 0;
+	tsf->GetBackgroundParameters(bg0, bg0Err, bg1, bg1Err, bg2, bg2Err);
+
+	Double_t sigma = 0, sigmaErr = 0;
+	tsf->GetSigma(sigma, sigmaErr);
+
+	Double_t t = 0, tErr = 0, b = 0, bErr= 0, step = 0, stepErr = 0;
+	tsf->GetTailParameters(t, tErr, b, bErr, step, stepErr);
+
+	Int_t nBgPar = 3;
+	Int_t nPeakCommonPar = m_skewEnabled ? 4 : 2;
+	Int_t nPeakPar = 2;
+
+	TF1 *tf = new TF1(name, *this, from, to, nBgPar + nPeakCommonPar + m_nPeaks * nPeakPar);
+	tf->SetNpx(10000);
+
+	Int_t p = 0;
+
+	//!! TODO: Apply from and scale to bg parms
+	tf->SetParName(p, "bg_0"); tf->SetParameter(p, bg0); ++p;
+	tf->SetParName(p, "bg_1"); tf->SetParameter(p, bg1); ++p;
+	tf->SetParName(p, "bg_2"); tf->SetParameter(p, bg2); ++p;
+
+	tf->SetParName(p, "sigma"); tf->SetParameter(p, sigma * scale); ++p;
+	tf->SetParName(p, "step"); tf->SetParameter(p, step); ++p;
+	
+	if (m_skewEnabled) {
+		tf->SetParName(p, "t"); tf->SetParameter(p, t); ++p;
+		tf->SetParName(p, "b"); tf->SetParameter(p, b); ++p;
+	}
+
+	for (Int_t i = 0; i < m_nPeaks; ++i) {
+		tf->SetParName(p, TString::Format("peak%i_pos",i+1));
+		tf->SetParameter(p, from + tsf->GetPositions()[i] * scale);
+		++p;
+		tf->SetParName(p, TString::Format("peak%i_ampl",i+1));
+		tf->SetParameter(p, tsf->GetAmplitudes()[i]);
+		++p;
+	}
+
+	return tf;
+}
+
+
+MultiPeakShapeTSF::MultiPeakShapeTSF(Int_t n, bool enableSkew)
+	: m_nPeaks(n), m_skewEnabled(enableSkew)
+{
+	if (m_nPeaks < 0) throw invalid_argument("Number of peaks must be >= 0");
 }
 
 

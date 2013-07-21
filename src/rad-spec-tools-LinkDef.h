@@ -12,6 +12,7 @@
 
 // SDPeak.h
 #pragma link C++ class rspt::SDPeakTSF-;
+#pragma link C++ class rspt::MultiPeakShapeTSF-;
 
 #endif
 
