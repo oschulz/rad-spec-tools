@@ -71,7 +71,7 @@ TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Op
 }
 
 
-TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHist, TSpectrumFit** resultTSF) {
+TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHist, TSpectrumFit** resultTSF, bool fitBG) {
 	TAxis *xAxis = hist->GetXaxis();
 	Int_t fromBin = xAxis->GetFirst();
 	Int_t toBin = xAxis->GetLast();
@@ -87,19 +87,22 @@ TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHi
 	Float_t *initialAmpl = new Float_t[nfound];
 	Bool_t *fixAmpl = new Bool_t[nfound];
 	for (Int_t i = 0; i < nfound; i++) {
-		initialPos[i] = hist->GetXaxis()->FindBin(spectrum->GetPositionX()[i]) - 1;
+		initialPos[i] = hist->GetXaxis()->FindBin(spectrum->GetPositionX()[i]) - fromBin;
 		fixPos[i] = false;
 		initialAmpl[i] = spectrum->GetPositionY()[i];
-		fixAmpl[i] = false;	 
+		fixAmpl[i] = false;
 	}	
 
-	TSpectrumFit *pfit = new TSpectrumFit(nfound);
-	pfit->SetBackgroundParameters(0, false, 0, false, 0, false);
-	pfit->SetFitParameters(0, nbins - 1, 1000, 0.1, pfit->kFitOptimChiCounts, pfit->kFitAlphaHalving, pfit->kFitPower2, pfit->kFitTaylorOrderFirst);	
-	pfit->SetPeakParameters(2, false, initialPos, fixPos, initialAmpl, fixAmpl);	
+	TSpectrumFit *tsf = new TSpectrumFit(nfound);
 
-	pfit->FitAwmi(histData);
-	//pfit->FitStiefel(histData);
+	if (fitBG) tsf->SetBackgroundParameters(0, false, 0, false, 0, false);
+	else tsf->SetBackgroundParameters(0, true, 0, true, 0, true);
+
+	tsf->SetFitParameters(0, nbins - 1, 1000, 0.1, tsf->kFitOptimChiCounts, tsf->kFitAlphaHalving, tsf->kFitPower2, tsf->kFitTaylorOrderFirst);	
+	tsf->SetPeakParameters(2, false, initialPos, fixPos, initialAmpl, fixAmpl);
+
+	tsf->FitAwmi(histData);
+	//tsf->FitStiefel(histData);
 
 	if (fitHist != 0) {
 		if (*fitHist == 0) *fitHist = dynamic_cast<TH1*>(hist->Clone());
@@ -115,10 +118,10 @@ TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHi
 	delete [] initialAmpl;
 	delete [] fixAmpl;
 
-	TF1* fitFunc = MultiPeakShapeTSF(nfound, true).newTF1("", xAxis, pfit);
+	TF1* fitFunc = MultiPeakShapeTSF(nfound, true).newTF1("", xAxis, tsf);
 	
-	if (resultTSF != 0) *resultTSF = pfit;
-	else delete pfit;
+	if (resultTSF != 0) *resultTSF = tsf;
+	else delete tsf;
 
 	return fitFunc;
 }
