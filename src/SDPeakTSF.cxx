@@ -112,10 +112,10 @@ TF1* MultiPeakShapeTSF::newTF1(const char* name, const TAxis *xAxis, TSpectrumFi
 	// double maxPos = numeric_limits<double>::max();
 	// double maxPos = 1e10;
 
-	Double_t from = xAxis->GetXmin();
-	Double_t to = xAxis->GetXmax();
 	Int_t fromBin = xAxis->GetFirst();
 	Int_t toBin = xAxis->GetLast();
+	Double_t from = xAxis->GetBinLowEdge(fromBin);
+	Double_t to = xAxis->GetBinLowEdge(toBin);
 	Double_t scale = (from - to) / (fromBin - toBin);
 	
 	Double_t bg0 = 0, bg0Err = 0, bg1 = 0, bg1Err = 0, bg2 = 0, bg2Err = 0;
@@ -136,12 +136,15 @@ TF1* MultiPeakShapeTSF::newTF1(const char* name, const TAxis *xAxis, TSpectrumFi
 
 	Int_t p = 0;
 
-	//!! TODO: Apply from and scale to bg parms
-	tf->SetParName(p, "bg_0"); tf->SetParameter(p, bg0); ++p;
-	tf->SetParName(p, "bg_1"); tf->SetParameter(p, bg1); ++p;
-	tf->SetParName(p, "bg_2"); tf->SetParameter(p, bg2); ++p;
+	Double_t fromSq = from * from;
+	Double_t scaleSq = scale * scale;
 
-	tf->SetParName(p, "sigma"); tf->SetParameter(p, sigma * scale); ++p;
+	//!! TODO: Apply from and scale to bg parms
+	tf->SetParName(p, "bg_0"); tf->SetParameter(p, bg0 - bg1 * from / scale + bg2 * fromSq / scaleSq); ++p;
+	tf->SetParName(p, "bg_1"); tf->SetParameter(p, bg1 / scale -  2 * bg2 * from / scaleSq); ++p;
+	tf->SetParName(p, "bg_2"); tf->SetParameter(p, bg2 / scaleSq); ++p;
+
+	tf->SetParName(p, "sigma"); tf->SetParameter(p, scale * sigma); ++p;
 	tf->SetParName(p, "step"); tf->SetParameter(p, step); ++p;
 	
 	if (m_skewEnabled) {
@@ -151,7 +154,7 @@ TF1* MultiPeakShapeTSF::newTF1(const char* name, const TAxis *xAxis, TSpectrumFi
 
 	for (Int_t i = 0; i < m_nPeaks; ++i) {
 		tf->SetParName(p, TString::Format("peak%i_pos",i+1));
-		tf->SetParameter(p, from + tsf->GetPositions()[i] * scale);
+		tf->SetParameter(p, from + scale * tsf->GetPositions()[i]);
 		++p;
 		tf->SetParName(p, TString::Format("peak%i_ampl",i+1));
 		tf->SetParameter(p, tsf->GetAmplitudes()[i]);
