@@ -23,7 +23,7 @@ pkginclude_HEADERS = $(librad_spec_tools_la_headers)
 librad_spec_tools_la_SOURCES += librad-spec-tools-rdict.cxx
 
 librad-spec-tools-rdict.cxx: $(librad_spec_tools_la_headers) rad-spec-tools-LinkDef.h
-	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) $+
+	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) `echo $(CXXFLAGS) | sed 's/\(^\|\s\)\(-std=[A-Za-z0-9+]\+\)\($$\|\s\)/\1\3/g'` $+
 
 rootmapdir = $(libdir)
 rootmap_DATA = .libs/librad-spec-tools.rootmap
