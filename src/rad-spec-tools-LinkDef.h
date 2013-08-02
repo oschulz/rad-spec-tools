@@ -3,6 +3,9 @@
 
 #ifdef __CINT__
 
+// Binning.h
+#pragma link C++ class rspt::Binning-;
+
 // HistAnalysis.h
 #pragma link C++ class rspt::HistAnalysis-;
 

@@ -23,6 +23,8 @@
 #include <TAxis.h>
 #include <TSpectrumFit.h>
 
+#include "Binning.h"
+
 
 namespace rspt {
 
@@ -60,7 +62,7 @@ public:
 
 	double operator()(double* x, double* p);
 
-	TF1* newTF1(const char* name, const TAxis *xAxis, TSpectrumFit *tsf) const;
+	TF1* newTF1(const char* name, const Binning &binning, TSpectrumFit *tsf) const;
 
 	MultiPeakShapeTSF(Int_t n, bool enableSkew = true);
 };

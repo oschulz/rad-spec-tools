@@ -108,15 +108,13 @@ double MultiPeakShapeTSF::operator()(double *x, double* p) {
 }
 
 
-TF1* MultiPeakShapeTSF::newTF1(const char* name, const TAxis *xAxis, TSpectrumFit *tsf) const {
+TF1* MultiPeakShapeTSF::newTF1(const char* name, const Binning &binning, TSpectrumFit *tsf) const {
 	// double maxPos = numeric_limits<double>::max();
 	// double maxPos = 1e10;
 
-	Int_t fromBin = xAxis->GetFirst();
-	Int_t toBin = xAxis->GetLast();
-	Double_t from = xAxis->GetBinLowEdge(fromBin);
-	Double_t to = xAxis->GetBinLowEdge(toBin);
-	Double_t scale = (from - to) / (fromBin - toBin);
+	Double_t from = binning.from();
+	Double_t to = binning.to();
+	Double_t scale = binning.binWidth();
 	
 	Double_t bg0 = 0, bg0Err = 0, bg1 = 0, bg1Err = 0, bg2 = 0, bg2Err = 0;
 	tsf->GetBackgroundParameters(bg0, bg0Err, bg1, bg1Err, bg2, bg2Err);
