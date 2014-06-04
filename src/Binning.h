@@ -44,8 +44,6 @@ public:
 	double coord(int32_t bin) { return from() + binWidth() * bin; }
 	int32_t bin(double x) { return int32_t( floor( (x + m_binWidth/2) / binWidth() ) ); }
 
-	void run();
-
 	Binning(): m_from(0), m_binWidth(0), m_nBins(0) {}
 	Binning(double orig, double bwidth, size_t n = 0): m_from(orig), m_binWidth(bwidth), m_nBins(n) {}
 	Binning(const TAxis *axis);
