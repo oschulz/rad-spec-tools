@@ -66,10 +66,12 @@ double MultiPeakShape::operator()(double *x, double* p) {
 		result = (*m_bg)(x, p);
 		p += m_bg->GetNpar();
 	}
+
+	double skewFraction = 0, skewWidth = 0;
+	if (m_skewEnabled) { skewFraction = *p++; skewWidth = *p++; }
+
 	for (int i = 0; i < m_nPeaks; ++i) {
 		double center = *p++, area = *p++, sigma = *p++, stepAmpl = *p++;
-		double skewFraction = 0, skewWidth = 0;
-		if (m_skewEnabled) { skewFraction = *p++; skewWidth = *p++; }
 		result += SDPeak::peakShape(*x, center, area, sigma, stepAmpl, skewFraction, skewWidth);
 	}
 	return result;
@@ -80,10 +82,11 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum) {
 	// double maxPos = numeric_limits<double>::max();
 	// double maxPos = 1e10;
 
-	static const int nPeakPar = m_skewEnabled ? 6 : 4;
+	static const int nPeakPar = 4;
+	static const int nSkewPar = m_skewEnabled ? 2 : 0;
 
 	Int_t nBgPar = (m_bg != 0) ? m_bg->GetNpar() : 0;
-	TF1 *tf = new TF1(name, *this, 0, 16.0 + 16.0 * m_nPeaks , nBgPar + m_nPeaks * nPeakPar);
+	TF1 *tf = new TF1(name, *this, 0, 16.0 + 16.0 * m_nPeaks , nBgPar + nSkewPar + m_nPeaks * nPeakPar);
 	tf->SetNpx(1000);
 
 	for (Int_t i = 0; i < nBgPar; ++i) {
@@ -95,6 +98,17 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum) {
 	}
 
 	Int_t p = nBgPar;
+
+	if (m_skewEnabled) {
+		tf->SetParName(p, "peak_skewFraction");
+		tf->SetParLimits(p, 0, 1);
+		tf->SetParameter(p, 0.2);
+		++p;
+		tf->SetParName(p, "peak_skewWidth");
+		tf->SetParLimits(p, 0.2, 20.0);
+		tf->SetParameter(p, 2.0);
+		++p;
+	}
 
 	for (Int_t i = 0; i < m_nPeaks; ++i) {
 		double center = (i+1) * 16.0;
@@ -123,17 +137,6 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum) {
 		// tf->SetParLimits(p, 0, maxPos);
 		tf->SetParameter(p, 0.02);
 		++p;
-
-		if (m_skewEnabled) {
-			tf->SetParName(p, TString::Format("peak%i_skewFraction",i+1));
-			tf->SetParLimits(p, 0, 1);
-			tf->SetParameter(p, 0.2);
-			++p;
-			tf->SetParName(p, TString::Format("peak%i_skewWidth",i+1));
-			tf->SetParLimits(p, 0.2, 20.0);
-			tf->SetParameter(p, 2.0);
-			++p;
-		}
 	}
 	return tf;
 }
