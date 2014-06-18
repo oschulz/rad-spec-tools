@@ -66,15 +66,15 @@ protected:
 		DescriptiveStatistics() { clear(); }
 	}; 
 	
-	typedef DescriptiveStatistics <double> Stats;
+	typedef DescriptiveStatistics<double> Stats;
 	typedef std::vector<std::pair< int, int >> Mapping;
 	typedef std::pair< double,double > Line;
 
-	inline double error(Stats x, Stats y) {return sqrt(std::pow(x.sigma(), 2) + std::pow(y.sigma(), 2));};
+	inline double error(SDPreCal::Stats x, SDPreCal::Stats y) {return sqrt(std::pow(x.sigma(), 2) + std::pow(y.sigma(), 2));};
 
-	std::pair<Stats, Stats> match( Line sline_a, Line sline_b, Line dline_a, Line dline_b, Stats prev_rx, Stats prev_ry );
+	std::pair<SDPreCal::Stats, SDPreCal::Stats> match( SDPreCal::Line sline_a, SDPreCal::Line sline_b, SDPreCal::Line dline_a, SDPreCal::Line dline_b, SDPreCal::Stats prev_rx, SDPreCal::Stats prev_ry );
 
-	std::pair<Mapping, Stats> genMap( int sline_i, int dline_i, Mapping prevMap, Stats prevStats );
+	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap( int sline_i, int dline_i, SDPreCal::Mapping prevMap, SDPreCal::Stats prevStats );
 	
 };
 
