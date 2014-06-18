@@ -29,7 +29,7 @@ SDPreCal::SDPreCal(std::vector<std::pair<double,double>> source_coll, std::vecto
 		m_data_size = m_data_collection.size();
 	}
 
-std::pair<stats, stats> SDPreCal::match( line sline_a, line sline_b, line dline_a, line dline_b, stats prev_rx, stats prev_ry ){
+std::pair<Stats, Stats> SDPreCal::match( Line sline_a, Line sline_b, Line dline_a, Line dline_b, Stats prev_rx, Stats prev_ry ){
 	
 	double rx = ( dline_b.first - dline_a.first )/( sline_b.first - sline_a.first );
 	double ry = ( dline_b.second / sline_b.second );
@@ -39,21 +39,21 @@ std::pair<stats, stats> SDPreCal::match( line sline_a, line sline_b, line dline_
 	return make_pair( prev_rx, prev_ry );
 }
 
-std::pair<mapping, stats> SDPreCal::genMap( int sline_i, int dline_i, mapping prevMap, stats prevStats ) {
+std::pair<Mapping, Stats> SDPreCal::genMap( int sline_i, int dline_i, Mapping prevMap, Stats prevStats ) {
 	
-	std::pair<stats,stats> new_stats = match();//to be continued!!
-	double distance_check = new_stats.first.sigma()/new_stats.first.mean();
-	double intensity_check = new_stats.second.sigma()/new_stats.second.mean()
+	std::pair<Stats,Stats> new_Stats = match();//to be continued!!
+	double distance_check = new_Stats.first.sigma()/new_Stats.first.mean();
+	double intensity_check = new_Stats.second.sigma()/new_Stats.second.mean()
 	std::pair<int, int> next_map = make_pair(sline_i, dline_i);
 	
 	if ( ( distance_check > distance_thr ||  intensity_check > intensity_thr ) || ( prevMap.first+2>=m_source_size && prevMap.second+2>=m_data_size ) ) {
-		return (prevMap.push_back(next_map), new_stats);
+		return (prevMap.push_back(next_map), new_Stats);
 	}
 	else {
 		double best_err = 0;
-		std::pair<mapping, stats> check_err_11 = genMap(prevMap.first+1, prevMap.second+1, prevMap, prevStats);
-		std::pair<mapping, stats> check_err_21 = genMap(prevMap.first+2, prevMap.second+1, prevMap, prevStats);
-		std::pair<mapping, stats> check_err_12 = genMap(prevMap.first+1, prevMap.second+2, prevMap, prevStats);
+		std::pair<Mapping, Stats> check_err_11 = genMap(prevMap.first+1, prevMap.second+1, prevMap, prevStats);
+		std::pair<Mapping, Stats> check_err_21 = genMap(prevMap.first+2, prevMap.second+1, prevMap, prevStats);
+		std::pair<Mapping, Stats> check_err_12 = genMap(prevMap.first+1, prevMap.second+2, prevMap, prevStats);
 		
 	}
 }
