@@ -19,21 +19,17 @@
 #define SDPRECAL_H
 
 #include <Rtypes.h>
-#include <pair>
-#include <vector>
+#include <TMath.h>
+
 
 class SDPreCal {
 public:
 	
-	calcPreCal(std::vector<std::pair<double, dlouble>> source_lines, std::vector<std::pair<double, dlouble>> data_lines);
 	SDPreCal(std::vector<std::pair<double,double>> source_coll, std::vector<std::pair<double,double>> data_coll);
+	void calcPreCal(std::vector<std::pair<double, double>> source_lines, std::vector<std::pair<double, double>> data_lines);	
 	virtual ~SDPreCal();
 
 protected:
-
-	typedef DescriptiveStatistics <double> stats;
-	typedef std::vector<std::pair<int, int>> mapping;
-	typedef std::pair<double,double> line;
 
 	std::vector<std::pair<double,double>> m_source_collection;
 	std::vector<std::pair<double,double>> m_data_collection;
@@ -67,10 +63,14 @@ protected:
 			return *this;
 		}
 
-	DescriptiveStatistics() { clear(); }
+		DescriptiveStatistics() { clear(); }
 	}; 
+	
+	typedef DescriptiveStatistics <double> stats<double>;
+	typedef std::vector<std::pair< int, int >> mapping;
+	typedef std::pair< double,double > line;
 
-	inline double error(stats x, stats y) {return sqrt(pow(x.sigma(), 2) + pow(y.sigma(), 2));};
+	inline double error(stats x, stats y) {return sqrt(std::pow(x.sigma(), 2) + std::pow(y.sigma(), 2));};
 
 	std::pair<stats, stats> match( line sline_a, line sline_b, line dline_a, line dline_b, stats prev_rx, stats prev_ry );
 

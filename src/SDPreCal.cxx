@@ -17,7 +17,7 @@
 
 #include "SDPreCal.h"
 
-#include <iostream>
+#include <utility>
 
 
 using namespace std;
@@ -57,6 +57,8 @@ std::pair<mapping, stats> SDPreCal::genMap( int sline_i, int dline_i, mapping pr
 		
 	}
 }
+void SDPreCal::calcPreCal(std::vector<std::pair<double, double>> source_lines, std::vector<std::pair<double, double>> data_lines) {	
+};
 
 SDPreCal::~SDPreCal() {
 }
