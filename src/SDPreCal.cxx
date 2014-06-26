@@ -21,7 +21,8 @@
 
 
 using namespace std;
-
+namespace rspt {
+    
 SDPreCal::SDPreCal(std::vector<std::pair<double,double>> source_coll, std::vector<std::pair<double,double>> data_coll) :
 	m_source_collection(source_coll),
 	m_data_collection(data_coll){
@@ -62,3 +63,4 @@ void SDPreCal::calcPreCal(std::vector<std::pair<double, double>> source_lines, s
 
 SDPreCal::~SDPreCal() {
 }
+} //namespace rspt
