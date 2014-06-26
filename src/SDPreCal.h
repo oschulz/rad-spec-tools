@@ -20,7 +20,7 @@
 
 #include <Rtypes.h>
 #include <TMath.h>
-
+namespace rspt {
 
 class SDPreCal {
 public:
@@ -77,7 +77,7 @@ protected:
 	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap( int sline_i, int dline_i, SDPreCal::Mapping prevMap, SDPreCal::Stats prevStats );
 	
 };
-
+}// namespace rspt
 
 
 #endif // SDPRECAL_H
