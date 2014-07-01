@@ -20,64 +20,76 @@
 
 #include <Rtypes.h>
 #include <TMath.h>
-namespace rspt {
-
+#include <TF1.h>
+#include <TGraph.h>
+#include <limits>
+#include <cmath>
+// namespace rspt {
+    template<typename tp_Type> class DescriptiveStatistics {
+    protected:
+        
+        size_t m_n;
+        tp_Type m_s0, m_s1, m_s2;
+        
+        bool m_first;
+        
+    public:
+        static tp_Type nan() { return std::numeric_limits<tp_Type>::quiet_NaN(); }
+        
+        size_t n() const { return m_n; }
+        tp_Type sum() const { return m_s1; }
+        tp_Type mean() const { return (n() > 0) ? m_s1 / m_s0 : nan(); }
+        tp_Type var() const { return (n() > 0) ? (m_s0 * m_s2 - m_s1 * m_s1) / (m_s0 * m_s0) : nan(); }
+        tp_Type sigma() const { return (n() > 0) ? sqrt(m_s0 * m_s2 - m_s1 * m_s1) / m_s0 : nan(); }
+        
+        void clear() { m_n = 0; m_s0 = 0; m_s1 = 0; m_s2 = 0; }
+        
+        DescriptiveStatistics& add(tp_Type x, tp_Type w = 1) {
+            m_n += 1;
+            m_s0 += w;
+            m_s1 += x * w;
+            m_s2 += x*x * w;
+            return *this;
+        }
+        
+        DescriptiveStatistics() { clear(); }
+    }; 
 class SDPreCal {
 public:
 	
-	SDPreCal(std::vector<std::pair<double,double>> source_coll, std::vector<std::pair<double,double>> data_coll);
-	void calcPreCal(std::vector<std::pair<double, double>> source_lines, std::vector<std::pair<double, double>> data_lines);	
+	SDPreCal();
+	TF1* calcPreCal(std::vector<std::pair<double, double> > source_lines, std::vector<std::pair<double, double> > data_lines);
 	virtual ~SDPreCal();
-
+    void setDistThres(double thres){m_dist_thres=thres;}
+    void setIntThres(double thres){m_int_thres=thres;}
 protected:
 
-	std::vector<std::pair<double,double>> m_source_collection;
-	std::vector<std::pair<double,double>> m_data_collection;
+	std::vector<std::pair<double,double> > m_source_collection;
+	std::vector<std::pair<double,double> > m_data_collection;
 	int m_source_size;
 	int m_data_size;
 
-	template<typename tp_Type> class DescriptiveStatistics {
-		protected:
+    int m_prev_source;
+    int m_prev_data;
 
-		size_t m_n;
-		tp_Type m_s0, m_s1, m_s2;
+    double m_dist_thres;
+    double m_int_thres;
 
-		bool m_first;
-
-		public:
-		static tp_Type nan() { return std::numeric_limits<tp_Type>::quiet_NaN(); }
-
-		size_t n() const { return m_n; }
-		tp_Type sum() const { return m_s1; }
-		tp_Type mean() const { return (n() > 0) ? m_s1 / m_s0 : nan(); }
-		tp_Type var() const { return (n() > 0) ? (m_s0 * m_s2 - m_s1 * m_s1) / (m_s0 * m_s0) : nan(); }
-		tp_Type sigma() const { return (n() > 0) ? sqrt(m_s0 * m_s2 - m_s1 * m_s1) / m_s0 : nan(); }
-
-		void clear() { m_n = 0; m_s0 = 0; m_s1 = 0; m_s2 = 0; }
-
-		DescriptiveStatistics& add(tp_Type x, tp_Type w = 1) {
-			m_n += 1;
-			m_s0 += w;
-			m_s1 += x * w;
-			m_s2 += x*x * w;
-			return *this;
-		}
-
-		DescriptiveStatistics() { clear(); }
-	}; 
-	
+    TF1* fit;
+    TGraph *precal_graph;
 	typedef DescriptiveStatistics<double> Stats;
-	typedef std::vector<std::pair< int, int >> Mapping;
+    typedef std::pair< DescriptiveStatistics<double>, DescriptiveStatistics<double> > Stats_pair;
+	typedef std::vector<std::pair< int, int > > Mapping;
 	typedef std::pair< double,double > Line;
 
-	inline double error(SDPreCal::Stats x, SDPreCal::Stats y) {return sqrt(std::pow(x.sigma(), 2) + std::pow(y.sigma(), 2));};
+	inline double calcError(SDPreCal::Stats x, SDPreCal::Stats y) {return x.sigma();};
 
 	std::pair<SDPreCal::Stats, SDPreCal::Stats> match( SDPreCal::Line sline_a, SDPreCal::Line sline_b, SDPreCal::Line dline_a, SDPreCal::Line dline_b, SDPreCal::Stats prev_rx, SDPreCal::Stats prev_ry );
 
-	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap( int sline_i, int dline_i, SDPreCal::Mapping prevMap, SDPreCal::Stats prevStats );
+    std::pair<SDPreCal::Mapping, SDPreCal::Stats_pair> genMap(std::vector<int> line_ind, SDPreCal::Mapping prevMap, SDPreCal::Stats_pair prevStats );
 	
 };
-}// namespace rspt
+// }//namespace rspt
 
 
 #endif // SDPRECAL_H
