@@ -14,8 +14,8 @@
 #pragma link C++ class rspt::MultiPeakShape-;
 
 // SDPreCal.h
-//#pragma link C++ class rspt::SDPreCal-;
-#pragma link C++ class SDPreCal-;
+#pragma link C++ class rspt::SDPreCal-;
+//#pragma link C++ class SDPreCal-;
 
 
 #endif

@@ -26,8 +26,8 @@
 #include<TSpectrum.h>
 #include "TSystem.h"
 #include <TROOT.h>
-bool compare_pair(std::pair<float,float> first,std::pair<float,float> second){
-    return(first.first<second.first);
+bool compare_pair(float first,float second){
+    return(first<second);
 }
 int main(int argc, char **argv){
 
@@ -51,30 +51,30 @@ int main(int argc, char **argv){
     TH1* raw_hist=dynamic_cast<TH1*>(input->FindObjectAny(histname.c_str()));
     TSpectrum *spec=new TSpectrum(100);
     if(raw_hist!=0){
-        SDPreCal precal;
+        rspt::SDPreCal precal;
 //         raw_hist->GetXaxis()->SetRangeUser(500,8196);
         int npeaks=spec->Search(raw_hist,1,"",0.01);
         float* x_pos=spec->GetPositionX();
         float* y_pos=spec->GetPositionY();
-        std::vector< std::pair <double,double> > peakinfo;
+        std::vector< double > peakinfo;
         for(int i_peak=0;i_peak<npeaks;++i_peak){
-            peakinfo.push_back(std::make_pair(x_pos[i_peak],y_pos[i_peak]));
+            peakinfo.push_back(x_pos[i_peak]);
         }
         
         std::sort(peakinfo.begin(),peakinfo.end(),compare_pair);
         for(int i_peak=0;i_peak<npeaks;++i_peak){
-            std::cout<<"index: "<<i_peak<<"\tpos: "<<peakinfo[i_peak].first<<std::endl;
+            std::cout<<"index: "<<i_peak<<"\tpos: "<<peakinfo[i_peak]<<std::endl;
         }
-        
+    
         double energy_iso1_spec[] = {209.253, 238.632, 240.986, 300.087, 328.000, 338.320, 463.004, 583.191, 727.330, 860.564, 911.204, 964.766, 968.971, 2614.533}; // here: Th-232
-        double Ig_iso[]={0.0389,0.43,0.041,0.0328,0.0295,0.1127,0.0440,0.845,0.0658,0.1242,0.258,0.0499,0.158,0.99};
+//         double Ig_iso[]={0.0389,0.43,0.041,0.0328,0.0295,0.1127,0.0440,0.845,0.0658,0.1242,0.258,0.0499,0.158,0.99};
 //         double energy_iso1_spec[] = {58,1086,1112,1408,2614.5};
         int nlines=14;
         std::vector<double> energy;
         std::vector<double> ig;
-        std::vector< std::pair <double,double> > line_info;
+        std::vector< double > line_info;
         for(int i=0;i<nlines;i++){
-            line_info.push_back(std::make_pair(energy_iso1_spec[i],1));
+            line_info.push_back(energy_iso1_spec[i]);
         }
         TF1* precalibration=precal.calcPreCal(line_info,peakinfo);
         if(precalibration!=NULL){

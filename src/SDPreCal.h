@@ -24,7 +24,7 @@
 #include <TGraph.h>
 #include <limits>
 #include <cmath>
-// namespace rspt {
+namespace rspt {
     template<typename tp_Type> class DescriptiveStatistics {
     protected:
         
@@ -56,16 +56,28 @@
     }; 
 class SDPreCal {
 public:
-	
+    typedef rspt::DescriptiveStatistics<float> Stats;
+    typedef std::pair< DescriptiveStatistics<double>, DescriptiveStatistics<double> > Stats_pair;
+    typedef std::vector<std::pair< int, int > > Mapping;
+    typedef std::pair< double,double > Line;
+	struct next_line_info {
+        short s_ind_a;
+        short s_ind_b;
+        short d_ind_a;
+        short d_ind_b;
+
+        Stats stats;
+    };
 	SDPreCal();
-	TF1* calcPreCal(std::vector<std::pair<double, double> > source_lines, std::vector<std::pair<double, double> > data_lines);
+	TF1* calcPreCal(std::vector<double > source_lines, std::vector< double> data_lines);
 	virtual ~SDPreCal();
     void setDistThres(double thres){m_dist_thres=thres;}
     void setIntThres(double thres){m_int_thres=thres;}
+    next_line_info genLineInfo(next_line_info prev,int next_s,int next_d);
 protected:
-
-	std::vector<std::pair<double,double> > m_source_collection;
-	std::vector<std::pair<double,double> > m_data_collection;
+    
+	std::vector<double > m_source_collection;
+	std::vector<double > m_data_collection;
 	int m_source_size;
 	int m_data_size;
 
@@ -77,19 +89,17 @@ protected:
 
     TF1* fit;
     TGraph *precal_graph;
-	typedef DescriptiveStatistics<double> Stats;
-    typedef std::pair< DescriptiveStatistics<double>, DescriptiveStatistics<double> > Stats_pair;
-	typedef std::vector<std::pair< int, int > > Mapping;
-	typedef std::pair< double,double > Line;
 
-	inline double calcError(SDPreCal::Stats x, SDPreCal::Stats y) {return x.sigma();};
 
-	std::pair<SDPreCal::Stats, SDPreCal::Stats> match( SDPreCal::Line sline_a, SDPreCal::Line sline_b, SDPreCal::Line dline_a, SDPreCal::Line dline_b, SDPreCal::Stats prev_rx, SDPreCal::Stats prev_ry );
+	inline double calcError(SDPreCal::Stats x) {return x.sigma();};
 
-    std::pair<SDPreCal::Mapping, SDPreCal::Stats_pair> genMap(std::vector<int> line_ind, SDPreCal::Mapping prevMap, SDPreCal::Stats_pair prevStats );
-	
+    SDPreCal::Stats match(next_line_info next);
+
+    std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap(next_line_info next, SDPreCal::Mapping prevMap ,int calls);
+
+    
 };
-// }//namespace rspt
+}//namespace rspt
 
 
 #endif // SDPRECAL_H
