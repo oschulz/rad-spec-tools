@@ -75,7 +75,7 @@ public:
     void setIntThres(double thres){m_int_thres=thres;}
     next_line_info genLineInfo(next_line_info prev,int next_s,int next_d);
 protected:
-    
+    bool debug;
 	std::vector<double > m_source_collection;
 	std::vector<double > m_data_collection;
 	int m_source_size;

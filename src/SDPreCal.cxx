@@ -25,11 +25,12 @@ using namespace std;
 namespace rspt {
     
 SDPreCal::SDPreCal() {
+        debug=false;
         m_prev_source=0;
         m_prev_data=0;
 		m_source_size = m_source_collection.size();
 		m_data_size = m_data_collection.size();
-        m_dist_thres=0.10;
+        m_dist_thres=0.1;
         m_int_thres=999999;
 }
 
@@ -49,13 +50,16 @@ SDPreCal::Stats SDPreCal::match(next_line_info next)
 
     if( sline_b - sline_a!=0){
         double rx=(dline_b-dline_a)/(sline_b-sline_a);
-        std::cout<<"dline_b: "<<dline_b<<"\tdline_a: "<<dline_a<<"\tsline_b: "<<sline_b<<"\tsline_a"<<sline_a<<std::endl;
-        std::cout<<"rx: "<<rx<<std::endl;
-        std::cout<<" prev rx_mean: "<<next.stats.mean()<<std::endl;
-        next.stats.add(rx);
+        if(debug){
+            std::cout<<"dline_b: "<<dline_b<<"\tdline_a: "<<dline_a<<"\tsline_b: "<<sline_b<<"\tsline_a"<<sline_a<<std::endl;
+            std::cout<<"rx: "<<rx<<std::endl;
+            std::cout<<" prev rx_mean: "<<next.stats.mean()<<std::endl;
+        }
         
-        std::cout<<"rx_mean: "<<next.stats.mean()<<std::endl;
-
+        next.stats.add(rx);
+        if(debug){
+            std::cout<<"rx_mean: "<<next.stats.mean()<<std::endl;
+        }
     }else{
         std::cerr<<"!!!!!ERROR!!!!! line are equal: sline_a: "<<next.s_ind_a<<std::endl;
     }
@@ -85,24 +89,28 @@ SDPreCal::next_line_info SDPreCal::genLineInfo(next_line_info prev,int next_s,in
 
 std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info next, SDPreCal::Mapping prevMap,int calls) {
 
-
-    std::cout<<std::endl;
-    std::cout<<"call "<<calls<<std::endl;
-//     std::cout<<"sline_a: "<<next.s_ind_a<<"\tsline_b: "<<next.s_ind_b<<"\tdline_a: "<<next.d_ind_a<<"\tdline_b: "<<next.d_ind_b<<std::endl;
+    if(debug){
+        std::cout<<std::endl;
+    }
     Stats new_Stats = match(next);
-    std::cout<<"match done"<<std::endl;
     double distance_check = new_Stats.sigma()/new_Stats.mean();
-	    
-    std::cout<<"new_Stats.first.sigma(): "<<new_Stats.sigma()<<"\tnew_Stats.first.mean(): "<<new_Stats.mean()<<std::endl;
-    std::cout<<"distance_check: "<<distance_check<<std::endl;
+
+    if(debug){
+        std::cout<<"new_Stats.first.sigma(): "<<new_Stats.sigma()<<"\tnew_Stats.first.mean(): "<<new_Stats.mean()<<std::endl;
+        std::cout<<"distance_check: "<<distance_check<<std::endl;
+    }
     std::pair<int, int> next_map = make_pair(next.s_ind_b,next.d_ind_b);
     if ( ( distance_check < m_dist_thres  )) {
         prevMap.push_back(next_map);
         next.stats=new_Stats;
-        std::cout<<"new map accepted"<<std::endl;
+        if(debug){
+            std::cout<<"new map accepted"<<std::endl;
+        }
     }
     
-    std::cout<<std::endl;
+    if(debug){
+        std::cout<<std::endl;
+    }
     next_line_info next11=genLineInfo(next,1,1);
     next_line_info next12=genLineInfo(next,1,2);
     next_line_info next21=genLineInfo(next,2,1);
