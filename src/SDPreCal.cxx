@@ -25,7 +25,7 @@ using namespace std;
 namespace rspt {
     
 SDPreCal::SDPreCal() {
-        debug=false;
+        debug=true;
         m_prev_source=0;
         m_prev_data=0;
 		m_source_size = m_source_collection.size();
@@ -48,7 +48,7 @@ SDPreCal::Stats SDPreCal::match(next_line_info next)
     double rx=(dline_b-dline_a)/(sline_b-sline_a);
     
 
-    if( sline_b - sline_a!=0){
+    if( sline_b - sline_a!=0&& dline_b-dline_a!=0){
         double rx=(dline_b-dline_a)/(sline_b-sline_a);
         if(debug){
             std::cout<<"dline_b: "<<dline_b<<"\tdline_a: "<<dline_a<<"\tsline_b: "<<sline_b<<"\tsline_a"<<sline_a<<std::endl;
@@ -61,7 +61,9 @@ SDPreCal::Stats SDPreCal::match(next_line_info next)
             std::cout<<"rx_mean: "<<next.stats.mean()<<std::endl;
         }
     }else{
-        std::cerr<<"!!!!!ERROR!!!!! line are equal: sline_a: "<<next.s_ind_a<<std::endl;
+        if(debug){
+            std::cerr<<"!!!!!ERROR!!!!! line are equal: sline_a: "<<next.s_ind_a<<std::endl;
+        }
     }
     Stats out=next.stats;
     return out;
@@ -80,8 +82,8 @@ SDPreCal::next_line_info SDPreCal::genLineInfo(next_line_info prev,int next_s,in
     }else{
         out.d_ind_a=prev.d_ind_b;
     }
-    out.s_ind_b=prev.s_ind_b+next_s;
-    out.d_ind_b=prev.d_ind_b+next_d;
+    out.s_ind_b=out.s_ind_a+next_s;
+    out.d_ind_b=out.d_ind_a+next_d;
     out.stats=prev.stats;
     return out;
 }
@@ -96,6 +98,7 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
     double distance_check = new_Stats.sigma()/new_Stats.mean();
 
     if(debug){
+        std::cout<<"s_line_a: "<<next.s_ind_a<<"\tsline_b: "<<next.s_ind_b<<"\tdline_a: "<<next.d_ind_a<<"\tdline_b: "<<next.d_ind_b<<std::endl;
         std::cout<<"new_Stats.first.sigma(): "<<new_Stats.sigma()<<"\tnew_Stats.first.mean(): "<<new_Stats.mean()<<std::endl;
         std::cout<<"distance_check: "<<distance_check<<std::endl;
     }
@@ -116,16 +119,28 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
     next_line_info next21=genLineInfo(next,2,1);
     
     if((next11.s_ind_b>=m_source_size &&  next11.d_ind_b>=m_data_size )){
+        if(debug){
+            std::cout<<"return"<<std::endl;
+        }
         return make_pair(prevMap, new_Stats);
-    }else if(( next21.s_ind_b>=m_source_size &&   next12.d_ind_b>=m_data_size )){
+    }else if(( next21.s_ind_b>=m_source_size &&   next12.d_ind_b>=m_data_size &&next11.s_ind_b<m_source_size &&next11.d_ind_b<m_data_size)){
+        if(debug){
+            std::cout<<"calling 11"<<std::endl;
+        }
         return  genMap(next11, prevMap,++calls);
     }else if(( next21.s_ind_b<m_source_size &&  next12.d_ind_b<m_data_size )){
         std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap,++calls);
         std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_21 = genMap(next21, prevMap,++calls);
         std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_12 = genMap(next12, prevMap,++calls);
+
         double error_11=calcError(check_err_11.second);
         double error_12=calcError(check_err_12.second);
         double error_21=calcError(check_err_21.second);
+        if(debug){
+            std::cout<<"calling 11"<<std::endl;
+            std::cout<<"calling 12"<<std::endl;
+            std::cout<<"calling 21"<<std::endl;
+        }
         if(error_11<error_12){
             if(error_11<error_21){
                 return check_err_11;
@@ -137,47 +152,34 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
         }else{
             return check_err_21;
         }
-    }else if(next12.d_ind_b<m_data_size&& next21.s_ind_b>=m_source_size){
+    }else if(next12.d_ind_b<m_data_size&& next21.s_ind_b>=m_source_size&&  next11.s_ind_b<m_source_size){
         std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap,++calls);
         std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_12 = genMap(next12, prevMap,++calls);
         double error_11=calcError(check_err_11.second);
         double error_12=calcError(check_err_12.second);
+        if(debug){
+            std::cout<<"calling 11"<<std::endl;
+            std::cout<<"calling 12"<<std::endl;
+        }
         if(error_11<error_12){
             return check_err_11;
         }else{
             return check_err_12;
         }
         
-    }else if( next21.s_ind_b<m_source_size && next12.d_ind_b>=m_data_size ){
+    }else if( next21.s_ind_b<m_source_size && next12.d_ind_b>=m_data_size &&  next11.d_ind_b<m_data_size){
         std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap,++calls);
         std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_21 = genMap(next21, prevMap,++calls);
         double error_11=calcError(check_err_11.second);
         double error_21=calcError(check_err_21.second);
+        if(debug){
+            std::cout<<"calling 11"<<std::endl;
+            std::cout<<"calling 21"<<std::endl;
+        }
         if(error_11<error_21){
             return check_err_11;
         }else{
             return check_err_21;
-        }
-    }else if( next11.s_ind_b>=m_source_size&&next11.d_ind_b<m_data_size){
-        next_line_info next01=genLineInfo(next,0,1);
-        
-        std::pair<SDPreCal::Mapping, SDPreCal::Stats>check_err_01=genMap(next01,prevMap,++calls);
-        double error_00=calcError(new_Stats);
-        double error_01=calcError(check_err_01.second);
-        if(error_01<error_00){
-            return check_err_01;
-        }else{
-            return make_pair(prevMap, new_Stats);
-        }
-    }else if( next11.d_ind_b>=m_data_size&&next11.s_ind_b<m_source_size){
-        next_line_info next10=genLineInfo(next,1,0);
-        std::pair<SDPreCal::Mapping, SDPreCal::Stats>check_err_10=genMap(next10,prevMap,++calls);
-        double error_00=calcError(new_Stats);
-        double error_10=calcError(check_err_10.second);
-        if(error_10<error_00){
-            return check_err_10;
-        }else{
-            return make_pair(prevMap, new_Stats);
         }
     }else{
         return make_pair(prevMap, new_Stats);
