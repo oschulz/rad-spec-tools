@@ -67,63 +67,6 @@ TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Op
 }
 
 
-TF1* HistAnalysis::fitPeaksTSF(const TH1 *hist, TSpectrum *spectrum, TH1** fitHist, TSpectrumFit** resultTSF, bool fitBG) {
-	TAxis *xAxis = hist->GetXaxis();
-	Int_t fromBin = xAxis->GetFirst();
-	Int_t toBin = xAxis->GetLast();
-	Int_t nbins = toBin - fromBin + 1;
-
-	float* histData = new float[nbins];
-	for (Int_t i = 0; i < nbins; ++i) histData[i] = hist->GetBinContent(i + fromBin);
-
-	Int_t nfound = spectrum->GetNPeaks();
-
-	Float_t *initialPos = new Float_t[nfound];
-	Bool_t *fixPos = new Bool_t[nfound];
-	Float_t *initialAmpl = new Float_t[nfound];
-	Bool_t *fixAmpl = new Bool_t[nfound];
-	for (Int_t i = 0; i < nfound; i++) {
-		initialPos[i] = hist->GetXaxis()->FindBin(spectrum->GetPositionX()[i]) - fromBin;
-		fixPos[i] = false;
-		initialAmpl[i] = spectrum->GetPositionY()[i];
-		fixAmpl[i] = false;
-	}	
-
-	TSpectrumFit *tsf = new TSpectrumFit(nfound);
-
-	if (fitBG) tsf->SetBackgroundParameters(0, false, 0, false, 0, false);
-	else tsf->SetBackgroundParameters(0, true, 0, true, 0, true);
-
-	tsf->SetFitParameters(0, nbins - 1, 1000, 0.1, tsf->kFitOptimChiCounts, tsf->kFitAlphaHalving, tsf->kFitPower2, tsf->kFitTaylorOrderFirst);	
-	tsf->SetPeakParameters(2, false, initialPos, fixPos, initialAmpl, fixAmpl);
-
-	tsf->FitAwmi(histData);
-	//tsf->FitStiefel(histData);
-
-	if (fitHist != 0) {
-		if (*fitHist == 0) *fitHist = dynamic_cast<TH1*>(hist->Clone());
-		TH1 *target = *fitHist;
-		Int_t n = target->GetNbinsX();
-		for (Int_t i = 0; i < n; ++i) target->SetBinContent(i + 1, 0);
-		for (Int_t i = 0; i < nbins; ++i) target->SetBinContent(i + fromBin, histData[i]);
-	}
-	
-	delete [] histData;
-	delete [] initialPos;
-	delete [] fixPos;
-	delete [] initialAmpl;
-	delete [] fixAmpl;
-
-	TF1* fitFunc = MultiPeakShapeTSF(nfound, true).newTF1("", xAxis, tsf);
-	
-	if (resultTSF != 0) *resultTSF = tsf;
-	else delete tsf;
-
-	return fitFunc;
-}
-
-
-
 TF1* HistAnalysis::findAndFitPeaks(TH1 *hist, Option_t* option, Option_t* goption, double sigma, double threshold, bool enableSkew, const char* bgModel) {
 	TSpectrum *spectrum = findPeaks(hist, "goff", sigma, threshold);
 	// for (Int_t pIdx = 0; pIdx < spec->GetNPeaks(); ++pIdx) cout << "Found peak at " << spec->GetPositionX()[pIdx] << " with height " << spec->GetPositionY()[pIdx] << endl;
