@@ -26,13 +26,9 @@
 #include <TSpectrum.h>
 #include <TSpectrumFit.h>
 
-#include <froast/Settings.h>
-
 #include "SDPeak.h"
-#include "SDPeakTSF.h"
 
 using namespace std;
-using namespace froast;
 
 
 namespace rspt {

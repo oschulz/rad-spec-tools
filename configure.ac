@@ -20,7 +20,7 @@ AX_CXX_COMPILE_STDCXX_11([noext])
 
 ROOTSYS_DEPS([glibs], [-lSpectrum])
 
-CXX_PROJECT_DEPS([froast sigprocxx])
+CXX_PROJECT_DEPS([])
 
 
 # Output
