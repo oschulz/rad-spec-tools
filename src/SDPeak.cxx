@@ -33,10 +33,8 @@ double SDPeak::gauss(double x, double sigma)
 	{ return (1. / (sigma * sqrt(2 * M_PI)) ) * exp( - pow(x / (sqrt(2) * sigma), 2.) ); }
 
 
-double SDPeak::skewedGauss(double x, double sigma, double skewWidth) {
-	double skew = skewWidth * sigma;
-	return ( exp( x/skew + sigma*sigma/(2.*skew*skew) ) * erfc( x / (sqrt(2)*sigma) + sigma / (sqrt(2)*skew)) ) / (2.*skew);
-}
+double SDPeak::skewedGauss(double x, double sigma, double skew)
+	{ return ( exp( x/skew + sigma*sigma/(2.*skew*skew) ) * erfc( x / (sqrt(2)*sigma) + sigma / (sqrt(2)*skew)) ) / (2.*skew); }
 
 
 double SDPeak::stepWithSigma(double x, double sigma)
@@ -45,8 +43,9 @@ double SDPeak::stepWithSigma(double x, double sigma)
 
 double SDPeak::peakShape(double x, double center, double area, double sigma, double stepAmpl, double skewFraction, double skewWidth) {
 	double x_c = x - center;
+	double skew = skewWidth * center;
 	return area * (1 - skewFraction) * gauss(x_c, sigma)
-	     + (skewFraction != 0 ? area * skewFraction * skewedGauss(x_c, sigma, skewWidth) : 0)
+	     + (skewFraction != 0 ? area * skewFraction * skewedGauss(x_c, sigma, skew) : 0)
 		 + stepAmpl * stepWithSigma(x_c, sigma);
 }
 
@@ -108,8 +107,8 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum, double sigma)
 		tf->SetParameter(p, 0.2);
 		++p;
 		tf->SetParName(p, "peak_skewWidth");
-		tf->SetParLimits(p, 0.2, 20.0);
-		tf->SetParameter(p, 2.0);
+		tf->SetParLimits(p, 1e-4, 1e-1);
+		tf->SetParameter(p, 1e-3);
 		++p;
 	}
 
