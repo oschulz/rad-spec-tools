@@ -131,7 +131,7 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum, double sigma)
 		tf->SetParameter(p, sigma);
 		++p;
 		tf->SetParName(p, TString::Format("peak%i_stepAmpl",i+1));
-		// tf->SetParLimits(p, 0, maxPos);
+		tf->SetParLimits(p, 0, height);
 		tf->SetParameter(p, 0.02);
 		++p;
 	}
