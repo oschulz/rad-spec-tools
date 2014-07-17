@@ -79,6 +79,9 @@ double MultiPeakShape::operator()(double *x, double* p) {
 
 
 TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum, double sigma) {
+	if (spectrum == 0) throw std::invalid_argument("Input spectrum cannot be a null pointer");
+	if (m_nPeaks != spectrum->GetNPeaks()) throw std::invalid_argument("Number of peaks to fit doesn't match number of peaks in input spektrum");
+
 	// double maxPos = numeric_limits<double>::max();
 	// double maxPos = 1e10;
 
@@ -111,15 +114,10 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum, double sigma)
 	}
 
 	for (Int_t i = 0; i < m_nPeaks; ++i) {
-		double center = (i+1) * 16.0;
-		double area = 100.0;
-		double areaLimit = 0;
-
-		if ( (spectrum != 0) && (i < spectrum->GetNPeaks()) ) {
-			center = spectrum->GetPositionX()[i];
-			area = spectrum->GetPositionY()[i] / SDPeak::gauss(0, sigma);
-			areaLimit = 1000 * area;
-		}
+		double center = spectrum->GetPositionX()[i];
+		double height = spectrum->GetPositionY()[i];
+		double area = height / SDPeak::gauss(0, sigma);
+		double areaLimit = 1000 * area;
 
 		tf->SetParName(p, TString::Format("peak%i_center",i+1));
 		tf->SetParameter(p, center);
