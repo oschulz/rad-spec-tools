@@ -78,7 +78,7 @@ double MultiPeakShape::operator()(double *x, double* p) {
 }
 
 
-TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum) {
+TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum, double sigma) {
 	// double maxPos = numeric_limits<double>::max();
 	// double maxPos = 1e10;
 
@@ -113,7 +113,6 @@ TF1* MultiPeakShape::newTF1(const char* name, TSpectrum *spectrum) {
 	for (Int_t i = 0; i < m_nPeaks; ++i) {
 		double center = (i+1) * 16.0;
 		double area = 100.0;
-		double sigma = 1.0;
 		double areaLimit = 0;
 
 		if ( (spectrum != 0) && (i < spectrum->GetNPeaks()) ) {

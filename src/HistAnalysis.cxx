@@ -58,10 +58,10 @@ TSpectrum* HistAnalysis::findSigPeaks(TH1 *hist, Option_t* option, double sigma,
 }
 
 
-TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Option_t* goption, bool enableSkew, const char* bgModel) {
+TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Option_t* goption, bool enableSkew, const char* bgModel, double sigma) {
 	TF1* bgFunc = new TF1("bgModel", bgModel, 0, 10);
 	MultiPeakShape peakShape(spectrum->GetNPeaks(), enableSkew, bgFunc);
-	TF1* sdpeaks = peakShape.newTF1("sdpeaks", spectrum);
+	TF1* sdpeaks = peakShape.newTF1("sdpeaks", spectrum, sigma);
 	hist->Fit("sdpeaks", option, goption);
 	return sdpeaks;
 }
@@ -70,7 +70,7 @@ TF1* HistAnalysis::fitPeaks(TH1 *hist, TSpectrum *spectrum, Option_t* option, Op
 TF1* HistAnalysis::findAndFitPeaks(TH1 *hist, Option_t* option, Option_t* goption, double sigma, double threshold, bool enableSkew, const char* bgModel) {
 	TSpectrum *spectrum = findPeaks(hist, "goff", sigma, threshold);
 	// for (Int_t pIdx = 0; pIdx < spec->GetNPeaks(); ++pIdx) cout << "Found peak at " << spec->GetPositionX()[pIdx] << " with height " << spec->GetPositionY()[pIdx] << endl;
-	TF1 *sdpeaks = fitPeaks(hist, spectrum, option, goption, enableSkew, bgModel);
+	TF1 *sdpeaks = fitPeaks(hist, spectrum, option, goption, enableSkew, bgModel, sigma);
 	delete spectrum;
 	return sdpeaks;
 }

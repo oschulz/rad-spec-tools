@@ -63,7 +63,7 @@ public:
 
 	double operator()(double* x, double* p);
 
-	TF1* newTF1(const char* name, TSpectrum *spectrum = 0);
+	TF1* newTF1(const char* name, TSpectrum *spectrum = 0, double sigma = 1.0);
 
 	MultiPeakShape(Int_t n, bool enableSkew = true, TF1* bgModel = 0);
 };
