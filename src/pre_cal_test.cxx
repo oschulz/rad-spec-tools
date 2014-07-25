@@ -101,7 +101,7 @@ int main(int argc, char **argv){
             precal.setDistThres(0.05);
             double energy_iso1_spec[] = {609.3,778.9,964.08,1085.9,1112.1,1408,1764.5,2614.533};
             int nlines=8;
-            width=0.08;
+            width=0.4;
             for(int i=0;i<nlines;i++){
                 line_info.push_back(energy_iso1_spec[i]);
             }
