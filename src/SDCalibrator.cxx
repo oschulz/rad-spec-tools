@@ -127,12 +127,15 @@ int SDCalibrator::calibrate()
         cal_ch2e = (TF1*)cal_e2ch->Clone("cal_ch2e");
         rspt::transposePol1(&cal_ch2e);
         m_objects->Add(cal_ch2e);
-        cal_ch2e->SetRange(0,8192);
+        cal_ch2e->SetRange(0,60000);//changed for susie
         cal_ch2e->SetNameTitle("cal_ch2e","Calibration E(Ch)");
         cal_ch2e->GetXaxis()->SetTitle("Channels");
         cal_ch2e->GetYaxis()->SetTitle("Energy");
 
-        std::cout<<"Calibration function: "<<cal_ch2e->GetParameter(1)<<"*x + "<<cal_ch2e->GetParameter(0)<<std::endl;
+	intercept = cal_ch2e->GetParameter(0);
+	slope = cal_ch2e->GetParameter(1);
+        
+	std::cout<<"Calibration function: "<<cal_ch2e->GetParameter(1)<<"*x + "<<cal_ch2e->GetParameter(0)<<std::endl;
     }
     else std::cout << "Less than 2 point in calibration graph. Skipping fit for calibration equation.\n";
 

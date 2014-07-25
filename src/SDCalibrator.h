@@ -43,6 +43,13 @@ public:
     void addResult(SDFitData* data);
     TList* getCalObjects(){return m_objects;};
     void setupCalGraphs();
+    
+    double intercept;
+    double slope;
+    
+    double getIntercept() {return intercept;};
+    double getSlope() {return slope;};
+    
 protected:
 
 
