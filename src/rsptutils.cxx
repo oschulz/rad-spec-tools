@@ -45,19 +45,21 @@ void transposePol1(TF1 **input) {
 /// @brief Checks if the tested mean is compatible with precalibration
 int desiredPeak(int iter,int fitted_lines, std::vector< double > energy, SDFitData *fit, TF1 *cal_ch2e) {
     int peakdesired=0;
-    double fit_residual=1000;
+    double fit_residual=50;
     for(unsigned int j=iter; j<iter+fitted_lines; j++) {
+	    std::cerr<<"energy["<<j<<"] = "<<energy[j]<<std::endl;
         peakdesired=0;
         for(int h=1; h<=fit->getNPeaks(); h++) {
             if (TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))) < fit_residual) {
                 peakdesired=h;
+		std::cerr<<"peakdesired = "<<fit->getMean(h)<<"\t "<<cal_ch2e->Eval(fit->getMean(h))<<"\t residual = "<<TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h)))<<std::endl;
                 fit_residual=TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h)));
             }
         }
         
         fit->setUsage(peakdesired);
         fit->setEnergy(peakdesired,energy[j]);
-        fit_residual=1000;
+        fit_residual=100;
     }
     return 0;
 }
