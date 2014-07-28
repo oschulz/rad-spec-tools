@@ -36,37 +36,36 @@ double SQRTQuadFunct(double *x, double *par);
 class SDCalibrator
 {
 public:
-    SDCalibrator();
-    virtual ~SDCalibrator();
+	SDCalibrator();
+	virtual ~SDCalibrator();
 
-    int calibrate();
-    void addResult(SDFitData* data);
-    TList* getCalObjects(){return m_objects;};
-    void setupCalGraphs();
-    
-    double intercept;
-    double slope;
-    
-    double getIntercept() {return intercept;};
-    double getSlope() {return slope;};
-    
+	int calibrate();
+	void addResult(SDFitData* data);
+	TList* getCalObjects(){return m_objects;};
+	void setupCalGraphs();
+
+	double intercept;
+	double slope;
+
+	double getIntercept() {return intercept;};
+	double getSlope() {return slope;};
+
 protected:
 
+	TCanvas *calCanv;
+	TF1 *rescal_ch2fch;
+	TF1 *rescal_e2fe;
+	TF1 *cal_e2ch;
+	TF1 *cal_ch2e;
 
-    TCanvas *calCanv;
-    TF1 *rescal_ch2fch;
-    TF1 *rescal_e2fe;
-    TF1 *cal_e2ch;
-    TF1 *cal_ch2e;
+	TList* m_objects;
 
-    TList* m_objects;
-    
-    TGraphErrors *cal_graph;
-    TGraphErrors *rescal_graph;
-    
-    void init();
-   
-    
+	TGraphErrors *cal_graph;
+	TGraphErrors *rescal_graph;
+
+	void init();
+
+
 };
 } //namespace rspt
 #endif // SDCALIBRATOR_H
