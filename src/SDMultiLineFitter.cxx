@@ -45,9 +45,8 @@ void SDMultiLineFitter::init()
         resetPreCal();
     }
 
-    
-    m_threshold=0.03;
-    m_sigma=1;
+    m_threshold=0.01;
+    m_sigma=3;
     m_specXPeak=0;
     m_specYPeak=0;
 
@@ -59,7 +58,10 @@ void SDMultiLineFitter::init()
     m_high_limit=0;
     //     iterations=3;
     //     average=3;
-    m_width=0.02;
+    m_width=0.05;
+
+    m_npeaks_max = 200;
+    
 }
 
 void SDMultiLineFitter::setRange(double lowEdge, double highEdge)
@@ -165,20 +167,20 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
     }
 //     m_raw_hist=raw_hist;
 
-
     int npeaks=energy.size();
     if(m_low_limit<m_high_limit){
         raw_hist->GetXaxis()->SetRangeUser(m_low_limit,m_high_limit);
     }
 
-    TSpectrum *spec=new TSpectrum(100);
+    
+    TSpectrum *spec=new TSpectrum(n_peaks_max);
     spec->SetDeconIterations(m_iteration);
     spec->SetResolution(m_sigma);
 
     int lines_to_fit=npeaks;
     std::pair<double,int> range_info;
     rspt::SDFitData *result;
-    for(unsigned int i=0; i<npeaks; i++)
+    for ( unsigned int i=0; i<npeaks; i++ )
     {
         double fitrange=m_width*m_preCalibration_e2ch->Eval(energy[i]);
         range_info=getRange(energy,i,lines_to_fit);
@@ -186,6 +188,8 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
         raw_hist->GetXaxis()->SetRangeUser(m_preCalibration_e2ch->Eval(energy[i])-fitrange,m_preCalibration_e2ch->Eval(energy[i])+range_info.first);
         int n_tspec_peaks=spec->Search(raw_hist,m_sigma,"",m_threshold);
         
+	std::cout<<"n_tspec_peaks = "<<n_tspec_peaks<<std::endl;
+
         m_specXPeak=spec->GetPositionX();
         m_specYPeak=spec->GetPositionY();
         

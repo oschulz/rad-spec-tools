@@ -54,6 +54,7 @@ protected:
     double m_low_limit;
     double m_high_limit;
     double m_width;
+	int m_n_peaks_max;
     ///x position of the found peaks
     float *m_specXPeak;
     ///y position of the found peaks
