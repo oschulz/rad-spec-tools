@@ -160,7 +160,7 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
         return fits;
     }
     if(m_preCalibration_ch2e==0){
-        std::cerr<<"does not found a precalibration aborting"<<std::endl;
+        std::cerr<<"does not find a precalibration aborting"<<std::endl;
         return fits;
     }
 //     m_raw_hist=raw_hist;
@@ -170,10 +170,10 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
     if(m_low_limit<m_high_limit){
         raw_hist->GetXaxis()->SetRangeUser(m_low_limit,m_high_limit);
     }
+
     TSpectrum *spec=new TSpectrum(100);
     spec->SetDeconIterations(m_iteration);
     spec->SetResolution(m_sigma);
-
 
     int lines_to_fit=npeaks;
     std::pair<double,int> range_info;

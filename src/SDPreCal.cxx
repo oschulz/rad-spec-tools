@@ -51,7 +51,7 @@ SDPreCal::Stats SDPreCal::match(next_line_info next)
     if( sline_b - sline_a!=0&& dline_b-dline_a!=0){
         double rx=(dline_b-dline_a)/(sline_b-sline_a);
         if(debug){
-            std::cout<<"dline_b: "<<dline_b<<"\tdline_a: "<<dline_a<<"\tsline_b: "<<sline_b<<"\tsline_a"<<sline_a<<std::endl;
+            std::cout<<"dline_b: "<<dline_b<<"\tdline_a: "<<dline_a<<"\tsline_b: "<<sline_b<<"\tsline_a: "<<sline_a<<std::endl;
             std::cout<<"rx: "<<rx<<std::endl;
             std::cout<<" prev rx_mean: "<<next.stats.mean()<<std::endl;
         }
