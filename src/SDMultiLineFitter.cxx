@@ -56,12 +56,13 @@ void SDMultiLineFitter::init()
 
 	m_low_limit=0;
 	m_high_limit=0;
-	//     iterations=3;
+	m_iteration = 3;
 	//     average=3;
 	m_width=0.05;
 
 	m_npeaks_max = 200;
 
+	m_maxADCch = 60000;
 }
 
 void SDMultiLineFitter::setRange(double lowEdge, double highEdge)
@@ -78,7 +79,7 @@ void SDMultiLineFitter::setRange(double lowEdge, double highEdge)
 
 void SDMultiLineFitter::setPreCal(double slope, double intercept)
 {
-	m_preCalibration_ch2e=new TF1("preCal","pol1",0,8192);
+	m_preCalibration_ch2e=new TF1("preCal", "pol1", 0, m_maxADCch);
 	m_preCalibration_ch2e->SetParameter(1,slope);
 	m_preCalibration_ch2e->SetParameter(0,intercept);
 	m_preCalibration_e2ch=(TF1*)m_preCalibration_ch2e->Clone();
@@ -155,21 +156,21 @@ std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,in
 std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std::vector<double> energy, std::vector<bool> *reject_res_cal)
 {
 	std::vector<rspt::SDFitData*> fits;
-	if(raw_hist==NULL){
+	if (raw_hist==NULL){
 		std::cerr<<"raw_hist ptr is invalid"<<std::endl;
 		return fits;
 	}
-	if(m_preCalibration_ch2e==0){
+	if (m_preCalibration_ch2e==0){
 		std::cerr<<"does not find a precalibration aborting"<<std::endl;
 		return fits;
 	}
 //     m_raw_hist=raw_hist;
 
 	int npeaks=energy.size();
-	if(m_low_limit<m_high_limit){
+	if ( m_low_limit<m_high_limit ){
 		raw_hist->GetXaxis()->SetRangeUser(m_low_limit,m_high_limit);
 	}
-    
+
 	TSpectrum *spec=new TSpectrum(m_npeaks_max);
 	spec->SetDeconIterations(m_iteration);
 	spec->SetResolution(m_sigma);
@@ -191,7 +192,7 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 		m_specXPeak=spec->GetPositionX();
 		m_specYPeak=spec->GetPositionY();
 		
-		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist,"+","",0.005*energy[i],m_threshold,false,"pol1");
+		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+", "", 0.0099*energy[i], m_threshold, false, "pol1");
 		fit->ResetBit(512);
 		
 		if(fit!=0){

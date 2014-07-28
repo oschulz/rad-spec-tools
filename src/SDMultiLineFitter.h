@@ -42,6 +42,8 @@ public:
 
 	void resetPreCal();
 	std::vector<rspt::SDFitData*> makeCalFits(TH1* raw_hist, std::vector<double> energy, std::vector<bool> *reject_res_cal=0);
+	
+	double m_maxADCch;
 protected:
 	int Np;
 
