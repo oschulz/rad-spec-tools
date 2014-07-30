@@ -187,17 +187,17 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 		raw_hist->GetXaxis()->SetRangeUser(m_preCalibration_e2ch->Eval(energy[i])-fitrange,m_preCalibration_e2ch->Eval(energy[i])+range_info.first);
 		int n_tspec_peaks=spec->Search(raw_hist,m_sigma,"",m_threshold);
 		
-		std::cout<<"n_tspec_peaks = "<<n_tspec_peaks<<std::endl;
+		std::cerr<<"n_tspec_peaks = "<<n_tspec_peaks<<std::endl;
 
 		m_specXPeak=spec->GetPositionX();
 		m_specYPeak=spec->GetPositionY();
 		
-		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+", "", 0.0099*energy[i], m_threshold, false, "pol1");
+		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+Q", "", 0.0099*energy[i], m_threshold, false, "pol1");
 		fit->ResetBit(512);
 		
 		if(fit!=0){
 			result=new rspt::SDFitData( fit,n_tspec_peaks);
-			rspt::desiredPeak(i,range_info.second,energy,result,m_preCalibration_ch2e);
+			rspt::desiredPeak( i, range_info.second, energy, result, m_preCalibration_ch2e );
 			fits.push_back(result);
             
 		}

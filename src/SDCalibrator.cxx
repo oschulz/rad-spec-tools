@@ -73,9 +73,9 @@ void SDCalibrator::addResult(SDFitData* data)
 	}
 
 	int nAdds=0;
-	for(unsigned int i=1; i<=data->getNPeaks(); i++){
+	for ( unsigned int i=1; i<=data->getNPeaks(); i++ ) {
 		
-		if(data->getUsage(i)) {
+		if( data->getUsage(i) ) {
 			nAdds++;
 			// add new calibration point to old graph
 			cal_graph->SetPoint(cal_graph->GetN(),data->getEnergy(i),data->getMean(i));
@@ -133,10 +133,10 @@ int SDCalibrator::calibrate()
 		intercept = cal_ch2e->GetParameter(0);
 		slope = cal_ch2e->GetParameter(1);
 
-		std::cout<<"Calibration function: "<<cal_ch2e->GetParameter(1)<<"*x + "<<cal_ch2e->GetParameter(0)<<std::endl;
+		std::cerr<<"Calibration function: "<<cal_ch2e->GetParameter(1)<<"*x + "<<cal_ch2e->GetParameter(0)<<std::endl;
 	}
 	
-	else std::cout << "Less than 2 point in calibration graph. Skipping fit for calibration equation.\n";
+	else std::cerr << "Less than 2 point in calibration graph. Skipping fit for calibration equation.\n";
 
 
 	if (rescal_graph->GetN() >= 2){
@@ -166,7 +166,7 @@ int SDCalibrator::calibrate()
 		delete rescal_ch2fch_lin;
 
 
-		std::cout << "Fit results for calibration equation:" << std::endl;
+		std::cerr << "Fit results for calibration equation:" << std::endl;
 		rescal_graph->Fit("rescal_ch2fch");
 
 		rescal_graph->GetFunction("rescal_ch2fch")->ResetBit(512);
@@ -179,7 +179,7 @@ int SDCalibrator::calibrate()
 		rescal_e2fe->SetLineWidth(1);
 	}
 	
-	else std::cout << "Less than 2 point in resolution graph. Skipping fit for resolution equation.\n";
+	else std::cerr << "Less than 2 point in resolution graph. Skipping fit for resolution equation.\n";
 
 	return 1;
 }
