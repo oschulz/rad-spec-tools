@@ -183,24 +183,29 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 
 		double fitrange=m_width*m_preCalibration_e2ch->Eval(energy[i]);
 		range_info=getRange(energy,i,lines_to_fit);
+		std::cerr<<" "<<std::endl;
+		std::cerr<<"range_info.first = "<<range_info.first<<"\t range_info.second = "<<range_info.second<<std::endl;
 		lines_to_fit-=range_info.second;
+		std::cerr<<"lines_to_fit = "<<lines_to_fit<<std::endl;
 		raw_hist->GetXaxis()->SetRangeUser(m_preCalibration_e2ch->Eval(energy[i])-fitrange,m_preCalibration_e2ch->Eval(energy[i])+range_info.first);
-		int n_tspec_peaks=spec->Search(raw_hist,m_sigma,"",m_threshold);
-		
-		std::cerr<<"n_tspec_peaks = "<<n_tspec_peaks<<std::endl;
+		std::cerr<<"raw_hist X axis Range User = "<<m_preCalibration_e2ch->Eval(energy[i])-fitrange<<", "<<m_preCalibration_e2ch->Eval(energy[i])+range_info.first<<std::endl;
 
-		m_specXPeak=spec->GetPositionX();
-		m_specYPeak=spec->GetPositionY();
+		int n_tspec_peaks = spec->Search(raw_hist,m_sigma,"goff",m_threshold);
+		std::cerr<<"n_tspec_peaks = "<<n_tspec_peaks<<std::endl;
+		m_specXPeak = spec->GetPositionX();
+		m_specYPeak = spec->GetPositionY();
+		
+		for (unsigned int j = 0; j<n_tspec_peaks; ++j) std::cerr<<"m_specXPeak["<<j<<"] = "<<m_specXPeak[j]<<std::endl;
 		
 		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+Q", "", 0.0099*energy[i], m_threshold, false, "pol1");
 		fit->ResetBit(512);
 		
 		if(fit!=0){
-			result=new rspt::SDFitData( fit,n_tspec_peaks);
+			result=new rspt::SDFitData( fit, n_tspec_peaks );
 			rspt::desiredPeak( i, range_info.second, energy, result, m_preCalibration_ch2e );
+			std::cerr<<"desiredPeak = "<<rspt::desiredPeak( i, range_info.second, energy, result, m_preCalibration_ch2e )<<std::endl;
 			fits.push_back(result);
-            
-		}
+            	}
 		else std::cerr<<"fit failed! continue"<<std::endl;
         
 		if(reject_res_cal!=0){
@@ -210,9 +215,7 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 				}
 			}
 		}
-		if(range_info.second>1) {
-			i+=range_info.second-1;
-		}
+		if(range_info.second>1) i+=range_info.second-1;
 	}
 	return fits;
 }
