@@ -58,7 +58,7 @@ void SDMultiLineFitter::init()
 	m_high_limit=0;
 	m_iteration = 3;
 	//     average=3;
-	m_width=0.05;
+	m_width=0.0099;
 
 	m_npeaks_max = 200;
 
@@ -139,6 +139,7 @@ std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,in
 		while(true) {
 			if(iter!=lines_to_fit-1) {
 				if(m_preCalibration_e2ch->Eval(energy[iter])+extended_fitrange<m_preCalibration_e2ch->Eval(energy[iter+fitted_lines])) {
+					std::cerr<<"e2ch(E["<<iter<<"])+0.05*e2ch(E["<<iter<<"]) < e2ch(E["<<iter+fitted_lines<<"])" <<std::endl;
 				break;
 				}
 				extended_fitrange=m_preCalibration_e2ch->Eval(energy[iter+fitted_lines])+fitrange-m_preCalibration_e2ch->Eval(energy[iter]);
@@ -179,12 +180,16 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 	std::pair<double,int> range_info;
 	rspt::SDFitData *result;
 
+	std::cerr<<"lines_to_fit at the beginning are: "<<lines_to_fit<<std::endl;
+	for (unsigned int i= 0; i<npeaks; ++i ) std::cerr<<"energy["<<i<<"] = "<<energy[i]<<"\t ADC channel["<<i<<"] = "<<m_preCalibration_e2ch->Eval(energy[i])<<std::endl;
+	
 	for ( unsigned int i=0; i<npeaks; i++ ){
 
-		double fitrange=m_width*m_preCalibration_e2ch->Eval(energy[i]);
-		range_info=getRange(energy,i,lines_to_fit);
 		std::cerr<<" "<<std::endl;
-		std::cerr<<"range_info.first = "<<range_info.first<<"\t range_info.second = "<<range_info.second<<std::endl;
+		double fitrange=m_width*m_preCalibration_e2ch->Eval(energy[i]);
+		std::cerr<<" ********* i = "<<i<<" *********"<<std::endl;
+		range_info=getRange(energy,i,lines_to_fit);
+		std::cerr<<"e2ch(E["<<i<<"]) = "<<m_preCalibration_e2ch->Eval(energy[i])<<"\t extended_fitrange = "<<range_info.first<<"\t fitted_lines = "<<range_info.second<<std::endl;
 		lines_to_fit-=range_info.second;
 		std::cerr<<"lines_to_fit = "<<lines_to_fit<<std::endl;
 		raw_hist->GetXaxis()->SetRangeUser(m_preCalibration_e2ch->Eval(energy[i])-fitrange,m_preCalibration_e2ch->Eval(energy[i])+range_info.first);
@@ -197,13 +202,12 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 		
 		for (unsigned int j = 0; j<n_tspec_peaks; ++j) std::cerr<<"m_specXPeak["<<j<<"] = "<<m_specXPeak[j]<<std::endl;
 		
-		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+Q", "", 0.0099*energy[i], m_threshold, false, "pol1");
+		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+", "", 0.0099*energy[i], m_threshold, true, "pol1");
 		fit->ResetBit(512);
 		
 		if(fit!=0){
 			result=new rspt::SDFitData( fit, n_tspec_peaks );
 			rspt::desiredPeak( i, range_info.second, energy, result, m_preCalibration_ch2e );
-			std::cerr<<"desiredPeak = "<<rspt::desiredPeak( i, range_info.second, energy, result, m_preCalibration_ch2e )<<std::endl;
 			fits.push_back(result);
             	}
 		else std::cerr<<"fit failed! continue"<<std::endl;

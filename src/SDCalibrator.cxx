@@ -78,6 +78,7 @@ void SDCalibrator::addResult(SDFitData* data)
 		if( data->getUsage(i) ) {
 			nAdds++;
 			// add new calibration point to old graph
+			std::cerr<<"to put in the graph: Energy = "<<data->getEnergy(i)<<"\t ADC channel = "<<data->getMean(i)<<std::endl;
 			cal_graph->SetPoint(cal_graph->GetN(),data->getEnergy(i),data->getMean(i));
 			cal_graph->SetPointError(cal_graph->GetN()-1,0,data->getMeanError(i));
 			// add new resolution point to old graph
