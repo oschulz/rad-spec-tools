@@ -23,7 +23,7 @@
 
 using namespace std;
 namespace rspt {
-    
+
 SDPreCal::SDPreCal() {
 	debug=true;
 	m_prev_source=0;
@@ -47,7 +47,7 @@ SDPreCal::Stats SDPreCal::match(next_line_info next)
 	dline_a=m_data_collection[next.d_ind_a];
 	dline_b=m_data_collection[next.d_ind_b];
 	double rx=(dline_b-dline_a)/(sline_b-sline_a);
-    
+
 
 	if( sline_b - sline_a!=0&& dline_b-dline_a!=0){
 		double rx=(dline_b-dline_a)/(sline_b-sline_a);
@@ -56,7 +56,7 @@ SDPreCal::Stats SDPreCal::match(next_line_info next)
 			std::cerr<<"rx: "<<rx<<std::endl;
 			std::cerr<<" prev rx_mean: "<<next.stats.mean()<<std::endl;
 		}
-        
+
 		next.stats.add(rx);
 		if(debug){
 			std::cerr<<"rx_mean: "<<next.stats.mean()<<std::endl;
@@ -106,13 +106,13 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 		next.stats=new_Stats;
 		if(debug) std::cerr<<"new map accepted"<<std::endl;
 	}
-    
+
 	if(debug) std::cerr<<std::endl;
-	
+
 	next_line_info next11=genLineInfo(next,1,1);
 	next_line_info next12=genLineInfo(next,1,2);
 	next_line_info next21=genLineInfo(next,2,1);
-    
+
 	if((next11.s_ind_b>=m_source_size &&  next11.d_ind_b>=m_data_size )){
 		if(debug) std::cerr<<"return"<<std::endl;
 		return make_pair(prevMap, new_Stats);
@@ -148,7 +148,7 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 		else{
 			return check_err_21;
 		}
-	
+
 	}else if(next12.d_ind_b<m_data_size&& next21.s_ind_b>=m_source_size&&  next11.s_ind_b<m_source_size){
 		std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap,++calls);
 		std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_12 = genMap(next12, prevMap,++calls);
@@ -164,7 +164,6 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 		else{
 			return check_err_12;
 		}
-        
 	}
 	else if( next21.s_ind_b<m_source_size && next12.d_ind_b>=m_data_size &&  next11.d_ind_b<m_data_size){
 		std::pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap,++calls);
@@ -207,9 +206,7 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 	std::cerr<<"start_fact_second: "<<start_fact_second<<std::endl;
 
 	for( int i_first=0; i_first<data_lines.size()/2; ++i_first ) {
-
 		for( int j_first=i_first+1; j_first<data_lines.size()/2; ++j_first ){
-
 			std::cout<<std::endl;
 			std::cout<<"i_first: "<<i_first<<"\tj_first: "<<j_first<<std::endl;
 			double data_fact_first = (data_lines[j_first] - data_lines[i_first] )/ data_lines[j_first];
@@ -219,12 +216,11 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 			double comp_first=abs(1-(data_fact_first/start_fact_first ));
 			std::cout<<"comp_first: "<< comp_first<<std::endl;
 			std::cout<<std::endl;
-
 			if( comp_first>0 && comp_first<0.05 ){
 				for( int i_second=j_first; i_second<data_lines.size()/2; ++i_second ){
 					for( int j_second=j_first+1; j_second<data_lines.size()/2; ++j_second ){
 						double data_fact_second=(data_lines[j_second]-data_lines[i_second])/data_lines[j_second];
-							if (debug) {
+						if (debug) {
 							std::cout<<std::endl;
 							std::cout<<"data_fact_second: "<<data_fact_second<<std::endl;
 							std::cout<<"data_lines[i_second]: "<<data_lines[i_second]<<"\tdata_lines[j_second]: "<<data_lines[j_second]<<std::endl;
@@ -259,14 +255,14 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 			break;
 		}
 	}	
-    
+
     
 	if(found_start_val){
 		std::cerr<<"starting match: ch: "<<data_lines[start_ind.d_ind_a]<<"\tenergy: "<<source_lines[start_ind.s_ind_a]<<std::endl;
 		std::pair<SDPreCal::Mapping, SDPreCal::Stats> map_result=genMap(start_ind,start,1);
 		precal_graph=new TGraph();
 		for(int i=0;i<map_result.first.size();++i){
-            
+
 			double channel=m_data_collection[map_result.first[i].second];
 			double energy=m_source_collection[map_result.first[i].first];
 			std::cerr<<"channel: "<<channel<<"\tenergy: "<<energy<<std::endl;

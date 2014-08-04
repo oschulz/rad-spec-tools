@@ -46,7 +46,7 @@ void SDMultiLineFitter::init()
 	}
 
 	m_threshold=0.01;
-	m_sigma=3;
+	m_sigma=6;//susie 3
 	m_specXPeak=0;
 	m_specYPeak=0;
 
