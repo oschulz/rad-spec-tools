@@ -45,7 +45,7 @@ void transposePol1(TF1 **input) {
 /// @brief Checks if the tested mean is compatible with precalibration
 int desiredPeak(int iter,int fitted_lines, std::vector< double > energy, SDFitData *fit, TF1 *cal_ch2e) {
     int peakdesired=0;
-    double fit_residual=100;
+    double fit_residual=50;
     for(unsigned int j=iter; j<iter+fitted_lines; j++) {
 	    std::cerr<<"energy["<<j<<"] = "<<energy[j]<<std::endl;
         peakdesired=0;
