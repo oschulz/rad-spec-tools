@@ -32,6 +32,7 @@ SDPreCal::SDPreCal() {
 	m_data_size = m_data_collection.size();
 	m_dist_thres=0.1;
 	m_int_thres=999999;
+	m_adc_max = 60000;
 }
 
 SDPreCal::Stats SDPreCal::match(next_line_info next)
@@ -272,7 +273,7 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 			precal_graph->SetPoint(precal_graph->GetN(),channel,energy);
 		}
 
-		fit=new TF1("fit","pol1", 0, 60000);
+		fit=new TF1("fit","pol1", 0, m_adc_max);
 		precal_graph->Fit("fit");
 		return dynamic_cast<TF1*>(precal_graph->GetFunction("fit"));
 	}

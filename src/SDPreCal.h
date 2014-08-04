@@ -85,6 +85,7 @@ protected:
 
 	double m_dist_thres;
 	double m_int_thres;
+	double m_adc_max;
 
 	TF1* fit;
 	TGraph *precal_graph;
