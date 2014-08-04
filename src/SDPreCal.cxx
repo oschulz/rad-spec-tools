@@ -28,8 +28,8 @@ SDPreCal::SDPreCal() {
 	debug=true;
 	m_prev_source=0;
 	m_prev_data=0;
-		m_source_size = m_source_collection.size();
-		m_data_size = m_data_collection.size();
+	m_source_size = m_source_collection.size();
+	m_data_size = m_data_collection.size();
 	m_dist_thres=0.1;
 	m_int_thres=999999;
 }
@@ -204,19 +204,24 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 	double start_fact_second=(source_lines[2]-source_lines[1])/source_lines[2];
 	std::cerr<<"start_fact_first: "<<start_fact_first<<std::endl;
 	std::cerr<<"start_fact_second: "<<start_fact_second<<std::endl;
-	for(int i_first=0;i_first<data_lines.size()/2;++i_first){
-		for(int j_first=i_first+1;j_first<data_lines.size()/2;++j_first){
-			double data_fact_first=(data_lines[j_first]-data_lines[i_first])/data_lines[j_first];
+
+	for( int i_first=0; i_first<data_lines.size()/2; ++i_first ) {
+
+		for( int j_first=i_first+1; j_first<data_lines.size()/2; ++j_first ){
+
 			std::cout<<std::endl;
-			std::cout<<"data_fact: "<<data_fact_first<<std::endl;
-			std::cout<<"data_lines[i_first]: "<<data_lines[i_first]<<"\tdata_lines[j_first]: "<<data_lines[j_first]<<std::endl;
-			std::cout<<"i: "<<i_first<<"\tj_first: "<<j_first<<std::endl;
-			std::cout<<" ( 1-(data_fact_first/start_fact_first ) )"<< ( 1-(data_fact_first/start_fact_first ) )<<std::endl;
-			std::cout<<std::endl;
+			std::cout<<"i_first: "<<i_first<<"\tj_first: "<<j_first<<std::endl;
+			double data_fact_first = (data_lines[j_first] - data_lines[i_first] )/ data_lines[j_first];
+			std::cout<<"data_fact_first: "<<data_fact_first<<std::endl;
+			std::cout<<"data_lines["<<i_first<<"]: "<<data_lines[i_first]<<"\tdata_lines["<<j_first<<"]: "<<data_lines[j_first]<<std::endl;
+			std::cout<<"data_fact_first/start_fact_first: "<< data_fact_first/start_fact_first <<std::endl;
 			double comp_first=abs(1-(data_fact_first/start_fact_first ));
-			if(comp_first>0&&comp_first<0.05){
-				for(int i_second=j_first;i_second<data_lines.size()/2;++i_second){
-					for(int j_second=j_first+1;j_second<data_lines.size()/2;++j_second){
+			std::cout<<"comp_first: "<< comp_first<<std::endl;
+			std::cout<<std::endl;
+
+			if( comp_first>0 && comp_first<0.05 ){
+				for( int i_second=j_first; i_second<data_lines.size()/2; ++i_second ){
+					for( int j_second=j_first+1; j_second<data_lines.size()/2; ++j_second ){
 						double data_fact_second=(data_lines[j_second]-data_lines[i_second])/data_lines[j_second];
 							if (debug) {
 							std::cout<<std::endl;
@@ -267,7 +272,7 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 			precal_graph->SetPoint(precal_graph->GetN(),channel,energy);
 		}
 
-		fit=new TF1("fit","pol1",0,8192);
+		fit=new TF1("fit","pol1", 0, 60000);
 		precal_graph->Fit("fit");
 		return dynamic_cast<TF1*>(precal_graph->GetFunction("fit"));
 	}

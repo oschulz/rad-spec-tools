@@ -202,7 +202,7 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 		
 		for (unsigned int j = 0; j<n_tspec_peaks; ++j) std::cerr<<"m_specXPeak["<<j<<"] = "<<m_specXPeak[j]<<std::endl;
 		
-		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+", "", 0.0099*energy[i], m_threshold, true, "pol1");
+		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+", "", 0.0099*energy[i], m_threshold, false, "pol1");
 		fit->ResetBit(512);
 		
 		if(fit!=0){
