@@ -205,30 +205,34 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 	std::cerr<<"start_fact_first: "<<start_fact_first<<std::endl;
 	std::cerr<<"start_fact_second: "<<start_fact_second<<std::endl;
 
-	for( int i_first=0; i_first<data_lines.size()/2; ++i_first ) {
-		for( int j_first=i_first+1; j_first<data_lines.size()/2; ++j_first ){
-			std::cout<<std::endl;
-			std::cout<<"i_first: "<<i_first<<"\tj_first: "<<j_first<<std::endl;
+	for( int i_first=0; i_first<data_lines.size(); ++i_first ) {
+		for( int j_first=i_first+1; j_first<data_lines.size(); ++j_first ){
 			double data_fact_first = (data_lines[j_first] - data_lines[i_first] )/ data_lines[j_first];
-			std::cout<<"data_fact_first: "<<data_fact_first<<std::endl;
-			std::cout<<"data_lines["<<i_first<<"]: "<<data_lines[i_first]<<"\tdata_lines["<<j_first<<"]: "<<data_lines[j_first]<<std::endl;
-			std::cout<<"data_fact_first/start_fact_first: "<< data_fact_first/start_fact_first <<std::endl;
 			double comp_first=abs(1-(data_fact_first/start_fact_first ));
-			std::cout<<"comp_first: "<< comp_first<<std::endl;
-			std::cout<<std::endl;
+			if (debug) {
+				std::cout<<std::endl;
+				std::cout<<"i_first: "<<i_first<<"\tj_first: "<<j_first<<std::endl;
+				std::cout<<"data_fact_first: "<<data_fact_first<<std::endl;
+				std::cout<<"data_lines["<<i_first<<"]: "<<data_lines[i_first]<<"\tdata_lines["<<j_first<<"]: "<<data_lines[j_first]<<std::endl;
+				std::cout<<"data_fact_first/start_fact_first: "<< data_fact_first/start_fact_first <<std::endl;
+				std::cout<<"comp_first: "<< comp_first<<std::endl;
+				std::cout<<std::endl;
+			}
 			if( comp_first>0 && comp_first<0.05 ){
-				for( int i_second=j_first; i_second<data_lines.size()/2; ++i_second ){
-					for( int j_second=j_first+1; j_second<data_lines.size()/2; ++j_second ){
+				std::cout<<"i_second = "<<j_first<<std::endl;
+				for( int i_second=j_first; i_second<data_lines.size(); ++i_second ){
+					for( int j_second=j_first+1; j_second<data_lines.size(); ++j_second ){
 						double data_fact_second=(data_lines[j_second]-data_lines[i_second])/data_lines[j_second];
+						double comp_second=abs(1-(data_fact_second/start_fact_second ));
 						if (debug) {
 							std::cout<<std::endl;
+							std::cout<<"i_second: "<<i_second<<"\tj_second: "<<j_second<<std::endl;
 							std::cout<<"data_fact_second: "<<data_fact_second<<std::endl;
-							std::cout<<"data_lines[i_second]: "<<data_lines[i_second]<<"\tdata_lines[j_second]: "<<data_lines[j_second]<<std::endl;
-							std::cout<<"i: "<<i_second<<"\tj_first: "<<j_second<<std::endl;
-							std::cout<<" ( 1-(data_fact_second/start_fact_second ) )"<< ( 1-(data_fact_second/start_fact_second) )<<std::endl;
+							std::cout<<"data_lines["<<i_second<<"]: "<<data_lines[i_second]<<"\tdata_lines["<<j_second<<"]: "<<data_lines[j_second]<<std::endl;
+							std::cout<<"data_fact_second/start_fact_second"<< data_fact_second/start_fact_second<<std::endl;
+							std::cout<<"comp_second: "<< comp_second<<std::endl;
 							std::cout<<std::endl;
 						}
-						double comp_second=abs(1-(data_fact_second/start_fact_second ));
 						if(comp_second>0&&comp_second<0.20){
 							start.push_back(make_pair(0,i_first));
 							start.push_back(make_pair(1,i_second));
