@@ -25,7 +25,7 @@ using namespace std;
 namespace rspt {
     
 SDPreCal::SDPreCal() {
-        debug=false;
+        debug=true;
         m_prev_source=0;
         m_prev_data=0;
 		m_source_size = m_source_collection.size();
@@ -268,7 +268,7 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
         precal_graph->Fit("fit");
         return dynamic_cast<TF1*>(precal_graph->GetFunction("fit"));
     }else{
-        std::cerr<<"does not found a starting point"<<std::endl;
+        std::cerr<<"does not find a starting point"<<std::endl;
     }
     return NULL;
 }
