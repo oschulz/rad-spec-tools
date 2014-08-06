@@ -45,7 +45,6 @@ public:
 	
 	double m_maxADCch;
 protected:
-	int Np;
 
 	float m_sigma;
 
@@ -53,10 +52,9 @@ protected:
 	double m_low_limit;
 	double m_high_limit;
 	double m_width;
-	int m_npeaks_max;
+
 	SDCalibrator calibrator;
 
-	TH1 *m_raw_hist;
 	TCanvas *m_cal_canv;
 	TF1 *m_preCalibration_ch2e;
 	TF1 *m_preCalibration_e2ch;

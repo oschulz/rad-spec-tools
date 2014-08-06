@@ -48,15 +48,12 @@ void SDMultiLineFitter::init()
 	m_threshold=0.01;
 	m_sigma=5;//susie 3 segBEGE5
 
-	m_raw_hist=0;
 	m_preCalibration_ch2e=NULL;
 	m_preCalibration_e2ch=NULL;
 
 	m_low_limit=0;
 	m_high_limit=0;
 	m_width=0.0099;
-
-	m_npeaks_max = 200;
 
 	m_maxADCch = 60000;
 }
@@ -161,14 +158,13 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 		std::cerr<<"does not find a precalibration aborting"<<std::endl;
 		return fits;
 	}
-//     m_raw_hist=raw_hist;
 
 	int npeaks=energy.size();
 	if ( m_low_limit<m_high_limit ){
 		raw_hist->GetXaxis()->SetRangeUser(m_low_limit,m_high_limit);
 	}
 
-	TSpectrum *spec=new TSpectrum(m_npeaks_max);
+	TSpectrum *spec=new TSpectrum();
 	spec->SetResolution(m_sigma);
 
 	int lines_to_fit=npeaks;
