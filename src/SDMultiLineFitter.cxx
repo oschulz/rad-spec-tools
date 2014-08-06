@@ -46,7 +46,7 @@ void SDMultiLineFitter::init()
 	}
 
 	m_threshold=0.01;
-	m_sigma=3;//susie 3 segBEGE6
+	m_sigma=3;//susie 3 segBEGE5
 	m_specXPeak=0;
 	m_specYPeak=0;
 
@@ -195,14 +195,10 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 		raw_hist->GetXaxis()->SetRangeUser(m_preCalibration_e2ch->Eval(energy[i])-fitrange,m_preCalibration_e2ch->Eval(energy[i])+range_info.first);
 		std::cerr<<"raw_hist X axis Range User = "<<m_preCalibration_e2ch->Eval(energy[i])-fitrange<<", "<<m_preCalibration_e2ch->Eval(energy[i])+range_info.first<<std::endl;
 
-		int n_tspec_peaks = spec->Search(raw_hist,m_sigma,"goff",m_threshold);
-		std::cerr<<"n_tspec_peaks = "<<n_tspec_peaks<<std::endl;
-		m_specXPeak = spec->GetPositionX();
-		m_specYPeak = spec->GetPositionY();
+		TSpectrum *spec = rspt::HistAnalysis::findPeaks(raw_hist, "", 0.0099*energy[i], m_threshold);
+		TF1 *fit = rspt::HistAnalysis::fitPeaks( raw_hist, spec, "+", "", false, "pol1", 0.0099*energy[i]);
 		
-		for (unsigned int j = 0; j<n_tspec_peaks; ++j) std::cerr<<"m_specXPeak["<<j<<"] = "<<m_specXPeak[j]<<std::endl;
-		
-		TF1 *fit=rspt::HistAnalysis::findAndFitPeaks(raw_hist, "+", "", 0.0099*energy[i], m_threshold, false, "pol1");
+		int n_tspec_peaks = spec->GetNPeaks();
 		fit->ResetBit(512);
 		
 		if(fit!=0){
