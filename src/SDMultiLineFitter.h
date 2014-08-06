@@ -54,10 +54,6 @@ protected:
 	double m_high_limit;
 	double m_width;
 	int m_npeaks_max;
-	///x position of the found peaks
-	float *m_specXPeak;
-	///y position of the found peaks
-	float *m_specYPeak;
 	SDCalibrator calibrator;
 
 	TH1 *m_raw_hist;
