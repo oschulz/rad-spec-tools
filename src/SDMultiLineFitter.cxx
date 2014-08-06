@@ -46,7 +46,7 @@ void SDMultiLineFitter::init()
 	}
 
 	m_threshold=0.01;
-	m_sigma=3;//susie 3 segBEGE5
+	m_sigma=5;//susie 3 segBEGE5
 	m_specXPeak=0;
 	m_specYPeak=0;
 
@@ -56,8 +56,6 @@ void SDMultiLineFitter::init()
 
 	m_low_limit=0;
 	m_high_limit=0;
-	m_iteration = 3;
-	//     average=3;
 	m_width=0.0099;
 
 	m_npeaks_max = 200;
@@ -173,7 +171,6 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 	}
 
 	TSpectrum *spec=new TSpectrum(m_npeaks_max);
-	spec->SetDeconIterations(m_iteration);
 	spec->SetResolution(m_sigma);
 
 	int lines_to_fit=npeaks;

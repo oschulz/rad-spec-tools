@@ -49,7 +49,6 @@ protected:
 
 	float m_sigma;
 
-	int m_iteration;
 	double m_threshold;
 	double m_low_limit;
 	double m_high_limit;
