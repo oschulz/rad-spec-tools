@@ -44,18 +44,6 @@ void SDMultiLineFitter::init()
 	if(m_preCalibration_ch2e!=0||m_preCalibration_e2ch!=0){
 		resetPreCal();
 	}
-
-	m_threshold=0.01;
-	m_sigma=5;//susie 3 segBEGE5
-
-	m_preCalibration_ch2e=NULL;
-	m_preCalibration_e2ch=NULL;
-
-	m_low_limit=0;
-	m_high_limit=0;
-	m_width=0.0099;
-
-	m_maxADCch = 60000;
 }
 
 void SDMultiLineFitter::setRange(double lowEdge, double highEdge)
