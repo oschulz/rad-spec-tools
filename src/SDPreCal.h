@@ -71,7 +71,6 @@ public:
 	TF1* calcPreCal(std::vector<double > source_lines, std::vector< double> data_lines);
 	virtual ~SDPreCal();
 	void setDistThres(double thres){m_dist_thres=thres;}
-	void setIntThres(double thres){m_int_thres=thres;}
 	next_line_info genLineInfo(next_line_info prev,int next_s,int next_d);
 protected:
 	bool debug;
@@ -80,12 +79,9 @@ protected:
 	int m_source_size;
 	int m_data_size;
 
-	int m_prev_source;
-	int m_prev_data;
-
 	double m_dist_thres;
-	double m_int_thres;
 	double m_adc_max;
+
 
 	TF1* fit;
 	TGraph *precal_graph;

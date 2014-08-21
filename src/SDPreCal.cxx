@@ -26,12 +26,9 @@ namespace rspt {
 
 SDPreCal::SDPreCal() {
 	debug=true;
-	m_prev_source=0;
-	m_prev_data=0;
 	m_source_size = m_source_collection.size();
 	m_data_size = m_data_collection.size();
 	m_dist_thres=0.1;
-	m_int_thres=999999;
 	m_adc_max = 60000;
 }
 
