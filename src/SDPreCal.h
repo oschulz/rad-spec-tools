@@ -67,11 +67,12 @@ public:
 		short d_ind_b;
 		Stats stats;
 	};
-	SDPreCal();
+	SDPreCal( double l_mca, double h_mca );
 	TF1* calcPreCal(std::vector<double > source_lines, std::vector< double> data_lines);
 	virtual ~SDPreCal();
 	void setDistThres(double thres){m_dist_thres=thres;}
 	next_line_info genLineInfo(next_line_info prev,int next_s,int next_d);
+
 protected:
 	bool debug;
 	std::vector<double > m_source_collection;
@@ -81,6 +82,8 @@ protected:
 
 	double m_dist_thres;
 	double m_adc_max;
+	double m_low_mca;
+	double m_high_mca;
 
 
 	TF1* fit;

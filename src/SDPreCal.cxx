@@ -24,12 +24,15 @@
 using namespace std;
 namespace rspt {
 
-SDPreCal::SDPreCal() {
+SDPreCal::SDPreCal( double l_mca, double h_mca ) {
+
+	m_low_mca = l_mca;
+	m_high_mca = h_mca;
 	debug=true;
 	m_source_size = m_source_collection.size();
 	m_data_size = m_data_collection.size();
 	m_dist_thres=0.1;
-	m_adc_max = 60000;
+
 }
 
 SDPreCal::Stats SDPreCal::match(next_line_info next)
@@ -266,11 +269,11 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 
 			double channel=m_data_collection[map_result.first[i].second];
 			double energy=m_source_collection[map_result.first[i].first];
-			std::cerr<<"channel: "<<channel<<"\tenergy: "<<energy<<std::endl;
+			if ( debug ) std::cerr<<"channel: "<<channel<<"\tenergy: "<<energy<<std::endl;
 			precal_graph->SetPoint(precal_graph->GetN(),channel,energy);
 		}
 
-		fit=new TF1("fit","pol1", 0, m_adc_max);
+		fit=new TF1("fit","pol1", m_low_mca, m_high_mca);
 		precal_graph->Fit("fit");
 		return dynamic_cast<TF1*>(precal_graph->GetFunction("fit"));
 	}
