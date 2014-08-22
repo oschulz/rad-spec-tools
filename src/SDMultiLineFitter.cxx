@@ -31,6 +31,7 @@ SDMultiLineFitter::SDMultiLineFitter()
 {
 	m_preCalibration_ch2e=NULL;
 	m_preCalibration_e2ch=NULL;
+	debug=true;
 	init();
 }
 
@@ -120,7 +121,7 @@ std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,in
 		while(true) {
 			if(iter!=lines_to_fit-1) {
 				if(m_preCalibration_e2ch->Eval(energy[iter])+extended_fitrange<m_preCalibration_e2ch->Eval(energy[iter+fitted_lines])) {
-					std::cerr<<"e2ch(E["<<iter<<"])+0.05*e2ch(E["<<iter<<"]) < e2ch(E["<<iter+fitted_lines<<"])" <<std::endl;
+					if ( debug ) std::cerr<<"e2ch(E["<<iter<<"])+0.05*e2ch(E["<<iter<<"]) < e2ch(E["<<iter+fitted_lines<<"])" <<std::endl;
 				break;
 				}
 				extended_fitrange=m_preCalibration_e2ch->Eval(energy[iter+fitted_lines])+fitrange-m_preCalibration_e2ch->Eval(energy[iter]);
@@ -159,20 +160,22 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 	std::pair<double,int> range_info;
 	rspt::SDFitData *result;
 
-	std::cerr<<"lines_to_fit at the beginning are: "<<lines_to_fit<<std::endl;
-	for (unsigned int i= 0; i<npeaks; ++i ) std::cerr<<"energy["<<i<<"] = "<<energy[i]<<"\t ADC channel["<<i<<"] = "<<m_preCalibration_e2ch->Eval(energy[i])<<std::endl;
+	if ( debug ) for (unsigned int i= 0; i<npeaks; ++i ) std::cerr<<"energy["<<i<<"] = "<<energy[i]<<"\t ADC channel["<<i<<"] = "<<m_preCalibration_e2ch->Eval(energy[i])<<std::endl;
 	
 	for ( unsigned int i=0; i<npeaks; i++ ){
 
-		std::cerr<<" "<<std::endl;
 		double fitrange=m_width*m_preCalibration_e2ch->Eval(energy[i]);
-		std::cerr<<" ********* i = "<<i<<" *********"<<std::endl;
 		range_info=getRange(energy,i,lines_to_fit);
-		std::cerr<<"e2ch(E["<<i<<"]) = "<<m_preCalibration_e2ch->Eval(energy[i])<<"\t extended_fitrange = "<<range_info.first<<"\t fitted_lines = "<<range_info.second<<std::endl;
 		lines_to_fit-=range_info.second;
-		std::cerr<<"lines_to_fit = "<<lines_to_fit<<std::endl;
 		raw_hist->GetXaxis()->SetRangeUser(m_preCalibration_e2ch->Eval(energy[i])-fitrange,m_preCalibration_e2ch->Eval(energy[i])+range_info.first);
-		std::cerr<<"raw_hist X axis Range User = "<<m_preCalibration_e2ch->Eval(energy[i])-fitrange<<", "<<m_preCalibration_e2ch->Eval(energy[i])+range_info.first<<std::endl;
+
+		if (debug) {
+			std::cerr<<" "<<std::endl;
+			std::cerr<<" ********* i = "<<i<<" *********"<<std::endl;
+			std::cerr<<"e2ch(E["<<i<<"]) = "<<m_preCalibration_e2ch->Eval(energy[i])<<"\t extended_fitrange = "<<range_info.first<<"\t fitted_lines = "<<range_info.second<<std::endl;
+			std::cerr<<"lines_to_fit = "<<lines_to_fit<<std::endl;
+			std::cerr<<"raw_hist X axis Range User = "<<m_preCalibration_e2ch->Eval(energy[i])-fitrange<<", "<<m_preCalibration_e2ch->Eval(energy[i])+range_info.first<<std::endl;
+		}
 
 		TSpectrum *spec = rspt::HistAnalysis::findPeaks(raw_hist, "", 0.0099*energy[i], m_threshold);
 		TF1 *fit = rspt::HistAnalysis::fitPeaks( raw_hist, spec, "+", "", false, "pol1", 0.0099*energy[i]);

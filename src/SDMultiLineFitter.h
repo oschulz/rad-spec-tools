@@ -47,7 +47,7 @@ public:
 protected:
 
 	float m_sigma;
-
+	bool debug;
 	double m_threshold;
 	double m_low_limit;
 	double m_high_limit;
