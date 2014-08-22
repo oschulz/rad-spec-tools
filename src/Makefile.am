@@ -31,10 +31,10 @@ pkginclude_HEADERS = $(librad_spec_tools_la_headers)
 
 # bin_PROGRAMS = pre_cal_test
 
- noinst_PROGRAMS =pre_cal_test
+# noinst_PROGRAMS =pre_cal_test
 
-pre_cal_test_SOURCES = pre_cal_test.cxx
-pre_cal_test_LDADD = librad-spec-tools.la
+#pre_cal_test_SOURCES = pre_cal_test.cxx
+#pre_cal_test_LDADD = librad-spec-tools.la
 # rad_spec_tools_LDFLAGS = -static
 
 
