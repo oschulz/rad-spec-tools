@@ -41,7 +41,7 @@ public:
 	void setRange(double lowEdge,double highEdge);
 
 	void resetPreCal();
-	std::vector<rspt::SDFitData*> makeCalFits(TH1* raw_hist, std::vector<double> energy, std::vector<bool> *reject_res_cal=0);
+	std::vector<rspt::SDFitData*> makeCalFits(TH1* raw_hist, std::vector<double> energy, double s_factor=0.0099, std::vector<bool> *reject_res_cal=0);
 	
 	double m_maxADCch;
 protected:

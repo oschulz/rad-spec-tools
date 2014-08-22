@@ -136,7 +136,7 @@ std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,in
 }
 
 
-std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std::vector<double> energy, std::vector<bool> *reject_res_cal)
+std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std::vector<double> energy, double s_factor, std::vector<bool> *reject_res_cal)
 {
 	std::vector<rspt::SDFitData*> fits;
 	if (raw_hist==NULL){
@@ -177,8 +177,8 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 			std::cerr<<"raw_hist X axis Range User = "<<m_preCalibration_e2ch->Eval(energy[i])-fitrange<<", "<<m_preCalibration_e2ch->Eval(energy[i])+range_info.first<<std::endl;
 		}
 
-		TSpectrum *spec = rspt::HistAnalysis::findPeaks(raw_hist, "", 0.0099*energy[i], m_threshold);
-		TF1 *fit = rspt::HistAnalysis::fitPeaks( raw_hist, spec, "+", "", false, "pol1", 0.0099*energy[i]);
+		TSpectrum *spec = rspt::HistAnalysis::findPeaks(raw_hist, "", s_factor*energy[i], m_threshold);
+		TF1 *fit = rspt::HistAnalysis::fitPeaks( raw_hist, spec, "+", "", false, "pol1", s_factor*energy[i]);
 		
 		int n_tspec_peaks = spec->GetNPeaks();
 		fit->ResetBit(512);
