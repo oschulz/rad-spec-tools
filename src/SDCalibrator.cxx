@@ -16,92 +16,89 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#include<TMath.h>
-
 #include "SDCalibrator.h"
+
+#include <TMath.h>
+
 #include "rsptutils.h"
+
+
 namespace rspt{
 
+
 double SQRTQuadFunct(double *x, double *par) {
-	double y=0.0;
-	y=sqrt( pow(par[0],2) + pow(par[1],2)*x[0] + pow(par[2],2)*pow(x[0],2) );
-	return y;
+	return sqrt( pow(par[0],2) + pow(par[1],2) * x[0] + pow(par[2],2) * pow(x[0],2) );
 }
-    
-SDCalibrator::SDCalibrator()
-{
+
+
+SDCalibrator::SDCalibrator() {
 	init();
 }
 
-SDCalibrator::~SDCalibrator(){
 
+SDCalibrator::~SDCalibrator() {
 }
 
-void SDCalibrator::init()
-{
 
+void SDCalibrator::init() {
+	if (rescal_graph == 0 || cal_graph == 0) setupCalGraphs();
 
-	if(rescal_graph==0||cal_graph==0){
-		setupCalGraphs();
-	}
-	m_objects=new TList();
+	m_objects = new TList();
 
-	rescal_ch2fch=NULL;
-	rescal_e2fe=NULL;
-	cal_ch2e=NULL;
-	cal_e2ch=NULL;
-	cal_graph=NULL;
-	rescal_graph=NULL;
-	calCanv=NULL;
+	rescal_ch2fch = 0;
+	rescal_e2fe = 0;
+	cal_ch2e = 0;
+	cal_e2ch = 0;
+	cal_graph = 0;
+	rescal_graph = 0;
+	calCanv = 0;
 }
 
-void SDCalibrator::setupCalGraphs()
-{
-	cal_graph=new TGraphErrors();
-	cal_graph->SetNameTitle("cal_graph","calibration graph");
-	rescal_graph=new TGraphErrors();
-	rescal_graph->SetNameTitle("rescal_graph","resolution graph");
+
+void SDCalibrator::setupCalGraphs() {
+	cal_graph = new TGraphErrors();
+	cal_graph->SetNameTitle("cal_graph", "calibration graph");
+	rescal_graph = new TGraphErrors();
+	rescal_graph->SetNameTitle("rescal_graph", "resolution graph");
 	m_objects->Add(cal_graph);
 	m_objects->Add(rescal_graph);
-    
 }
 
-void SDCalibrator::addResult(SDFitData* data)
-{
-	if(cal_graph==0&&rescal_graph==0) {
-		setupCalGraphs();
-	}
+
+void SDCalibrator::addResult(SDFitData* data) {
+	if (cal_graph == 0 && rescal_graph == 0) setupCalGraphs();
 
 	int nAdds=0;
-	for ( unsigned int i=1; i<=data->getNPeaks(); i++ ) {
-		
-		if( data->getUsage(i) ) {
+	for (unsigned int i=1; i<=data->getNPeaks(); i++) {
+		if ( data->getUsage(i) ) {
 			nAdds++;
+
 			// add new calibration point to old graph
 			std::cerr<<"to put in the graph: Energy = "<<data->getEnergy(i)<<"\t ADC channel = "<<data->getMean(i)<<std::endl;
 			cal_graph->SetPoint(cal_graph->GetN(),data->getEnergy(i),data->getMean(i));
 			cal_graph->SetPointError(cal_graph->GetN()-1,0,data->getMeanError(i));
+
 			// add new resolution point to old graph
-		if(data->getResUsage(i)){
-			rescal_graph->SetPoint(rescal_graph->GetN(),data->getMean(i),TMath::Sqrt(8*TMath::Log(2))*data->getSigma(i));
-			rescal_graph->SetPointError(rescal_graph->GetN()-1,data->getMeanError(i),TMath::Sqrt(8*TMath::Log(2))*data->getSigmaError(i));
+			if (data->getResUsage(i)) {
+				rescal_graph->SetPoint(rescal_graph->GetN(),data->getMean(i),TMath::Sqrt(8*TMath::Log(2))*data->getSigma(i));
+				rescal_graph->SetPointError(rescal_graph->GetN()-1,data->getMeanError(i),TMath::Sqrt(8*TMath::Log(2))*data->getSigmaError(i));
+			}
 		}
-        }
-    }
+	}
 }
 
-int SDCalibrator::calibrate()
-{
-	if (cal_graph->GetN() >= 2){
+int SDCalibrator::calibrate() {
+	if (cal_graph->GetN() >= 2) {
 		bool point_removed=false;
 		cal_e2ch = new TF1("cal_e2ch","pol1",0,3000); // channel(energy)
 		cal_e2ch->SetTitle("Calibration Ch(E)");
 		cal_e2ch->SetLineColor(3);
 		cal_e2ch->SetLineWidth(1);
 		m_objects->Add(cal_e2ch);
+
 		// Fitting resolution with option  "W": Set all weights to 1 for non empty bins; ignore error bars;
 		// R: Use the Range specified in the function range
-		//Q: Quiet
+		// Q: Quiet
 		cal_graph->Fit("cal_e2ch","WRQ");
 		cal_graph->GetXaxis()->SetTitle("Energy");
 		cal_graph->GetYaxis()->SetTitle("Channels");
@@ -120,14 +117,13 @@ int SDCalibrator::calibrate()
 		slope = cal_ch2e->GetParameter(1);
 
 		std::cerr<<"Calibration function: "<<cal_ch2e->GetParameter(1)<<"*x + "<<cal_ch2e->GetParameter(0)<<std::endl;
+	} else {
+		std::cerr << "Less than 2 point in calibration graph. Skipping fit for calibration equation.\n";
 	}
-	
-	else std::cerr << "Less than 2 point in calibration graph. Skipping fit for calibration equation.\n";
 
 
-	if (rescal_graph->GetN() >= 2){
-
-		TF1 *rescal_ch2fch_lin=new TF1("rescal_ch2fch_lin","pol1",1,10000);
+	if (rescal_graph->GetN() >= 2) {
+		TF1 *rescal_ch2fch_lin = new TF1("rescal_ch2fch_lin", "pol1", 1, 10000);
 
 		// Fitting resolution with option  "W": Set all weights to 1 for non empty bins; ignore error bars;
 		// because the lower sigmas have a very much smaller error, and therefore the important high
@@ -138,17 +134,17 @@ int SDCalibrator::calibrate()
 		rescal_graph->SetTitle("Resolution calibration FWHM_{Ch}(Ch)");
 		rescal_graph->GetXaxis()->SetTitle("Channels");
 		rescal_graph->GetYaxis()->SetTitle("FWHM_{Ch} / channels");
-		rescal_graph->Fit("rescal_ch2fch_lin","0Q");
+		rescal_graph->Fit("rescal_ch2fch_lin", "0Q");
 
-		rescal_ch2fch=new TF1("rescal_ch2fch",SQRTQuadFunct,1,10000,3);
+		rescal_ch2fch=new TF1("rescal_ch2fch", SQRTQuadFunct, 1, 10000, 3);
 		rescal_ch2fch->SetTitle("Resolution calibration FWHM_{Ch}(Ch)");
 		rescal_ch2fch->SetLineColor(4);
 		rescal_ch2fch->SetLineWidth(1);
 		m_objects->Add(rescal_ch2fch);
 
-		rescal_ch2fch->SetParameter(0,rescal_ch2fch_lin->GetParameter(0));
-		rescal_ch2fch->SetParameter(1,0);
-		rescal_ch2fch->SetParameter(2,rescal_ch2fch_lin->GetParameter(1));
+		rescal_ch2fch->SetParameter(0, rescal_ch2fch_lin->GetParameter(0));
+		rescal_ch2fch->SetParameter(1, 0);
+		rescal_ch2fch->SetParameter(2, rescal_ch2fch_lin->GetParameter(1));
 		delete rescal_ch2fch_lin;
 
 
@@ -163,13 +159,12 @@ int SDCalibrator::calibrate()
 
 		rescal_e2fe->SetLineColor(3);
 		rescal_e2fe->SetLineWidth(1);
+	} else {
+		std::cerr << "Less than 2 point in resolution graph. Skipping fit for resolution equation.\n";
 	}
-	
-	else std::cerr << "Less than 2 point in resolution graph. Skipping fit for resolution equation.\n";
 
 	return 1;
 }
-
 
 
 } //namespace rspt

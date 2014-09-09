@@ -16,34 +16,41 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef SDMULTILINEFITTER_H
-#define SDMULTILINEFITTER_H
+#ifndef RSPT_SDMULTILINEFITTER_H
+#define RSPT_SDMULTILINEFITTER_H
+
 #include <TH1.h>
 #include <TF1.h>
 #include <TCanvas.h>
 #include <TGraphErrors.h>
+
 #include "SDCalibrator.h"
 #include "SDFitData.h"
-namespace rspt{
-class SDMultiLineFitter
-{
 
+
+namespace rspt{
+
+
+class SDMultiLineFitter {
 public:
 	SDMultiLineFitter();
 	virtual ~SDMultiLineFitter();
+
 	void setThreshold(double thresh);
 	void setSigma(float sig);
-	void setPreCal(double slope,double intercept);
+	void setPreCal(double slope, double intercept);
 	void setPreCal(TF1 *precal_ch2e);
-	void setWidth(double width){m_width=width;};
-	void setRange(double lowEdge,double highEdge);
+	void setWidth(double width) { m_width = width; }
+	void setRange(double lowEdge, double highEdge);
 
 	void resetPreCal();
-	std::vector<rspt::SDFitData*> makeCalFits(TH1* raw_hist, std::vector<double> energy, double s_factor=0.0099, std::vector<bool> *reject_res_cal=0);
-	
-	double m_maxADCch;
-protected:
 
+	std::vector<rspt::SDFitData*> makeCalFits(TH1* raw_hist, std::vector<double> energy,
+		double s_factor=0.0099, std::vector<bool> *reject_res_cal=0);
+
+	double m_maxADCch;
+
+protected:
 	float m_sigma;
 	bool debug;
 	double m_threshold;
@@ -58,7 +65,11 @@ protected:
 	TF1 *m_preCalibration_e2ch;
 
 	void init();
+
 	std::pair<double,int> getRange(std::vector<double> energy,int iter,int lines_to_fit);
 };
-}
-#endif // SDMULTILINEFITTER_H
+
+
+} // namespace rspt
+
+#endif // RSPT_SDMULTILINEFITTER_H

@@ -16,8 +16,9 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef SDCALIBRATOR_H
-#define SDCALIBRATOR_H
+#ifndef RSPT_SDCALIBRATOR_H
+#define RSPT_SDCALIBRATOR_H
+
 #include <memory>
 
 #include <TH1.h>
@@ -26,30 +27,32 @@
 #include <TGraphErrors.h>
 #include <TList.h>
 
-#include"SDFitData.h"
+#include "SDFitData.h"
+
+
 namespace rspt{
 
+
 double SQRTQuadFunct(double *x, double *par);
-    
-class SDCalibrator
-{
+
+
+class SDCalibrator {
 public:
+	double intercept;
+	double slope;
+
 	SDCalibrator();
 	virtual ~SDCalibrator();
 
 	int calibrate();
 	void addResult(SDFitData* data);
-	TList* getCalObjects(){return m_objects;};
+	TList* getCalObjects() {return m_objects;}
 	void setupCalGraphs();
 
-	double intercept;
-	double slope;
-
-	double getIntercept() {return intercept;};
-	double getSlope() {return slope;};
+	double getIntercept() {return intercept;}
+	double getSlope() {return slope;}
 
 protected:
-
 	TCanvas *calCanv;
 	TF1 *rescal_ch2fch;
 	TF1 *rescal_e2fe;
@@ -62,8 +65,9 @@ protected:
 	TGraphErrors *rescal_graph;
 
 	void init();
-
-
 };
-} //namespace rspt
-#endif // SDCALIBRATOR_H
+
+
+} // namespace rspt
+
+#endif // RSPT_SDCALIBRATOR_H

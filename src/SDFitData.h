@@ -16,37 +16,49 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef SDFITDATA_H
-#define SDFITDATA_H
+#ifndef RSPT_SDFITDATA_H
+#define RSPT_SDFITDATA_H
+
 #include <TF1.h>
+
+
 namespace rspt{
-class SDFitData
-{
+
+
+class SDFitData {
 public:
-    SDFitData(TF1 *fit,int npeaks);
-    virtual ~SDFitData();
-    double getMean(unsigned int index);
-    double getMeanError(unsigned int index);
-    double getSigma(unsigned int index);
-    double getSigmaError(unsigned int index);
-    bool getUsage(unsigned int index);
-    int getNPeaks(){return m_npeaks;}
-    double getEnergy(unsigned int index);
-    bool getResUsage(unsigned int index);
-    
-    void setEnergy(unsigned int index,double energy);
-    bool setUsage(unsigned int index,bool use=true);
-    bool setResUsage(unsigned int index,bool use=true);
+	SDFitData(TF1 *fit, int npeaks);
+	virtual ~SDFitData();
+
+	double getMean(unsigned int index);
+	double getMeanError(unsigned int index);
+	double getSigma(unsigned int index);
+	double getSigmaError(unsigned int index);
+
+	bool getUsage(unsigned int index);
+	bool setUsage(unsigned int index, bool use=true);
+
+	int getNPeaks() {return m_npeaks;}
+
+	double getEnergy(unsigned int index);
+	void setEnergy(unsigned int index, double energy);
+
+	bool getResUsage(unsigned int index);
+	bool setResUsage(unsigned int index, bool use=true);
+
 protected:
-    bool m_valid;
+	bool m_valid;
 
-    int m_npeaks;
+	int m_npeaks;
 
-    TF1 *m_fit;
-    
-    std::vector<bool> m_usage;
-    std::vector<bool> m_res_usage;
-    std::vector<double> m_energy;
+	TF1 *m_fit;
+
+	std::vector<bool> m_usage;
+	std::vector<bool> m_res_usage;
+	std::vector<double> m_energy;
 };
-}//namespace rspt
-#endif // SDFITDATA_H
+
+
+} // namespace rspt
+
+#endif // RSPT_SDFITDATA_H

@@ -16,13 +16,25 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef UTILS_H
+#ifndef RSPT_RSPTUTILS_H
 #define UTILS_H
+
 #include <TF1.h>
+
 #include "SDFitData.h"
+
+
 namespace rspt{
-    void transposePol1(TF1 **input);
-    int desiredPeak(int iter,int fitted_lines, std::vector< double > energy, SDFitData *fit, TF1 *cal_ch2e) ;
-    TF1* rescalFCh2Fe(const TF1* rescal_ch2fch, const TF1* cal_ch2e);
+
+
+void transposePol1(TF1 **input);
+
+/// @brief Checks if the tested mean is compatible with precalibration
+int desiredPeak(int iter, int fitted_lines, std::vector< double > energy, SDFitData *fit, TF1 *cal_ch2e) ;
+
+TF1* rescalFCh2Fe(const TF1* rescal_ch2fch, const TF1* cal_ch2e);
+
+
 } // namespace rspt
-#endif // UTILS_H
+
+#endif // RSPT_RSPTUTILS_H
