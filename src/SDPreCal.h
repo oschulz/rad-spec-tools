@@ -31,40 +31,38 @@
 namespace rspt {
 
 
-template<typename tp_Type> class DescriptiveStatistics {
-protected:
-	size_t m_n;
-	tp_Type m_s0, m_s1, m_s2;
-
-	bool m_first;
-
-public:
-	static tp_Type nan() { return std::numeric_limits<tp_Type>::quiet_NaN(); }
-
-	size_t n() const { return m_n; }
-	tp_Type sum() const { return m_s1; }
-	tp_Type mean() const { return (n() > 0) ? m_s1 / m_s0 : nan(); }
-	tp_Type var() const { return (n() > 0) ? (m_s0 * m_s2 - m_s1 * m_s1) / (m_s0 * m_s0) : nan(); }
-	tp_Type sigma() const { return (n() > 0) ? sqrt(m_s0 * m_s2 - m_s1 * m_s1) / m_s0 : nan(); }
-
-	void clear() { m_n = 0; m_s0 = 0; m_s1 = 0; m_s2 = 0; }
-
-	DescriptiveStatistics& add(tp_Type x, tp_Type w = 1) {
-		m_n += 1;
-		m_s0 += w;
-		m_s1 += x * w;
-		m_s2 += x*x * w;
-		return *this;
-	}
-
-	DescriptiveStatistics() { clear(); }
-};
-
-
-
 class SDPreCal {
 public:
-	typedef rspt::DescriptiveStatistics<float> Stats;
+	template<typename tp_Type> class DescriptiveStatistics {
+	protected:
+		size_t m_n;
+		tp_Type m_s0, m_s1, m_s2;
+
+		bool m_first;
+
+	public:
+		static tp_Type nan() { return std::numeric_limits<tp_Type>::quiet_NaN(); }
+
+		size_t n() const { return m_n; }
+		tp_Type sum() const { return m_s1; }
+		tp_Type mean() const { return (n() > 0) ? m_s1 / m_s0 : nan(); }
+		tp_Type var() const { return (n() > 0) ? (m_s0 * m_s2 - m_s1 * m_s1) / (m_s0 * m_s0) : nan(); }
+		tp_Type sigma() const { return (n() > 0) ? sqrt(m_s0 * m_s2 - m_s1 * m_s1) / m_s0 : nan(); }
+
+		void clear() { m_n = 0; m_s0 = 0; m_s1 = 0; m_s2 = 0; }
+
+		DescriptiveStatistics& add(tp_Type x, tp_Type w = 1) {
+			m_n += 1;
+			m_s0 += w;
+			m_s1 += x * w;
+			m_s2 += x*x * w;
+			return *this;
+		}
+
+		DescriptiveStatistics() { clear(); }
+	};
+
+	typedef DescriptiveStatistics<float> Stats;
 	typedef std::pair< DescriptiveStatistics<double>, DescriptiveStatistics<double> > Stats_pair;
 	typedef std::vector<std::pair< int, int > > Mapping;
 	typedef std::pair< double,double > Line;
