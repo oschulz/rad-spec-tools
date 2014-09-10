@@ -1,5 +1,6 @@
 // Copyright (C) 2013 Thomas Quante <thomas.quante@tu-dortmund.de>
 //               2014 Lucia Garbini <garbini@mpp.mpg.de>
+//               2014 Oliver Schulz <oschulz@mpp.mpg.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -18,33 +19,38 @@
 
 #include "rsptutils.h"
 
+#include <string>
 #include <cmath>
 
 #include <TAxis.h>
 
-#include "SDCalibrator.h"
+using namespace std;
 
 
 namespace rspt{
 
 
-void transposePol1(TF1 **input) {
-	char xTitle[100], yTitle[100];
-	strcpy(xTitle, (*input)->GetXaxis()->GetTitle());
-	strcpy(yTitle, (*input)->GetYaxis()->GetTitle());
+double SQRTQuadFunct(double *x, double *par) {
+	return sqrt( pow(par[0],2) + pow(par[1],2) * x[0] + pow(par[2],2) * pow(x[0],2) );
+}
 
-	Double_t m, merr, c, cerr;
-	c = (*input)->GetParameter(0) + 1e-100;
-	m = (*input)->GetParameter(1) + 1e-100;
-	cerr = (*input)->GetParError(0) + 1e-100;
-	merr = (*input)->GetParError(1) + 1e-100;
 
-	(*input)->SetParameter(0, -1.*c/m);
-	(*input)->SetParameter(1, 1./m);
-	(*input)->SetParError(0, c/m * sqrt(pow( (merr/m), 2) + pow((cerr/c), 2)) );
-	(*input)->SetParError(1, pow(merr/m, 2));
-	(*input)->GetXaxis()->SetTitle(yTitle);
-	(*input)->GetYaxis()->SetTitle(xTitle);
+void transposePol1(TF1 *hist) {
+	string xTitle(hist->GetXaxis()->GetTitle());
+	string yTitle(hist->GetYaxis()->GetTitle());
+
+	Double_t m, mErr, c, cErr;
+	c = hist->GetParameter(0) + 1e-100;
+	m = hist->GetParameter(1) + 1e-100;
+	cErr = hist->GetParError(0) + 1e-100;
+	mErr = hist->GetParError(1) + 1e-100;
+
+	hist->SetParameter(0, -1.*c/m);
+	hist->SetParameter(1, 1./m);
+	hist->SetParError(0, c/m * sqrt(pow( (mErr/m), 2) + pow((cErr/c), 2)) );
+	hist->SetParError(1, pow(mErr/m, 2));
+	hist->GetXaxis()->SetTitle(yTitle.c_str());
+	hist->GetYaxis()->SetTitle(xTitle.c_str());
 }
 
 
@@ -53,14 +59,14 @@ int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitDat
 	double fit_residual=50;
 
 	for (unsigned int j = iter; j < iter+fitted_lines; j++) {
-		std::cerr<<"energy["<<j<<"] = "<<energy[j]<<std::endl;
-		peakdesired=0;
+		cerr << "energy[" << j << "] = " << energy[j] << endl;
+		peakdesired = 0;
 
 		for (int h = 1; h <= fit->getNPeaks(); h++) {
 			if (TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))) < fit_residual) {
-				peakdesired=h;
-				std::cerr<<"peakdesired = "<<fit->getMean(h)<<"\t "<<cal_ch2e->Eval(fit->getMean(h))<<"\t residual = "<<TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h)))<<std::endl;
-				fit_residual=TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h)));
+				peakdesired = h;
+				cerr << "peakdesired = " << fit->getMean(h) << "\t " << cal_ch2e->Eval(fit->getMean(h)) << "\t residual = " << TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))) << endl;
+				fit_residual = TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h)));
 			}
 		}
 
@@ -92,15 +98,15 @@ TF1* rescalFCh2Fe(const TF1* rescal_ch2fch, const TF1* cal_ch2e) {
 
 	// dragon parametrization for conversion of FWHM(Ch) into FWHM(E)
 	double rescalpar[3] = {
-		sqrt( pow(c1*p0,2) - c0*c1*pow(p1,2) + pow(c0*p2,2) ),
-		sqrt( c1*pow(p1,2) - 2*c0*pow(p2,2) ),
+		sqrt( pow(c1 * p0, 2) - c0*c1*pow(p1, 2) + pow(c0 * p2, 2) ),
+		sqrt( c1*pow(p1, 2) - 2*c0*pow(p2, 2) ),
 		p2
 	};
 
 	// results of gaussian error propagation
 	double par_resE_err[3] = {
-		sqrt( pow(c1 * pow(p1,2) + 2 * c0 * pow(p2,2), 2) * pow(c0_err, 2)
-			+ pow(2 * c1 * pow(p0, 2) + c0 * pow(p1, 2), 2) * pow(c1,2)
+		sqrt( pow(c1 * pow(p1, 2) + 2 * c0 * pow(p2, 2), 2) * pow(c0_err, 2)
+			+ pow(2 * c1 * pow(p0, 2) + c0 * pow(p1, 2), 2) * pow(c1, 2)
 			+ pow(2 * c1 * pow(p0, 2) * p0_err, 2)
 			+ pow(2 * c0 * c1 * p1 * p1_err, 2)
 			+ pow(2 * pow(c0, 2) * p2 * p2_err, 2)

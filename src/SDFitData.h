@@ -1,5 +1,6 @@
 // Copyright (C) 2013 Thomas Quante <thomas.quante@tu-dortmund.de>
 //               2014 Lucia Garbini <garbini@mpp.mpg.de>
+//               2014 Oliver Schulz <oschulz@mpp.mpg.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -30,21 +31,21 @@ public:
 	SDFitData(TF1 *fit, int npeaks);
 	virtual ~SDFitData();
 
-	double getMean(unsigned int index);
-	double getMeanError(unsigned int index);
-	double getSigma(unsigned int index);
-	double getSigmaError(unsigned int index);
+	double getMean(size_t index);
+	double getMeanError(size_t index);
+	double getSigma(size_t index);
+	double getSigmaError(size_t index);
 
-	bool getUsage(unsigned int index);
-	bool setUsage(unsigned int index, bool use=true);
+	bool getUsage(size_t index);
+	bool setUsage(size_t index, bool use=true);
 
 	int getNPeaks() {return m_npeaks;}
 
-	double getEnergy(unsigned int index);
-	void setEnergy(unsigned int index, double energy);
+	double getEnergy(size_t index);
+	void setEnergy(size_t index, double energy);
 
-	bool getResUsage(unsigned int index);
-	bool setResUsage(unsigned int index, bool use=true);
+	bool getResUsage(size_t index);
+	bool setResUsage(size_t index, bool use=true);
 
 protected:
 	bool m_valid;

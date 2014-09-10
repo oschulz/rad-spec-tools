@@ -1,5 +1,6 @@
 // Copyright (C) 2013 Thomas Quante <thomas.quante@tu-dortmund.de>
 //               2014 Lucia Garbini <garbini@mpp.mpg.de>
+//               2014 Oliver Schulz <oschulz@mpp.mpg.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -34,7 +35,7 @@ namespace rspt{
 class SDMultiLineFitter {
 public:
 	SDMultiLineFitter();
-	virtual ~SDMultiLineFitter();
+	virtual ~SDMultiLineFitter() {}
 
 	void setThreshold(double thresh);
 	void setSigma(float sig);
@@ -66,7 +67,7 @@ protected:
 
 	void init();
 
-	std::pair<double,int> getRange(std::vector<double> energy,int iter,int lines_to_fit);
+	std::pair<double, int> getRange(std::vector<double> energy, int iter, int lines_to_fit);
 };
 
 

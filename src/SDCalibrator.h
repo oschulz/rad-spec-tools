@@ -1,5 +1,6 @@
 // Copyright (C) 2013 Thomas Quante <thomas.quante@tu-dortmund.de>
 //               2014 Lucia Garbini <garbini@mpp.mpg.de>
+//               2014 Oliver Schulz <oschulz@mpp.mpg.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -33,26 +34,23 @@
 namespace rspt{
 
 
-double SQRTQuadFunct(double *x, double *par);
-
-
 class SDCalibrator {
 public:
-	double intercept;
-	double slope;
-
 	SDCalibrator();
 	virtual ~SDCalibrator();
 
 	int calibrate();
 	void addResult(SDFitData* data);
-	TList* getCalObjects() {return m_objects;}
+	TList* getCalObjects() { return m_objects; }
 	void setupCalGraphs();
 
-	double getIntercept() {return intercept;}
-	double getSlope() {return slope;}
+	double getIntercept() const { return m_intercept; }
+	double getSlope() const { return m_slope; }
 
 protected:
+	double m_intercept;
+	double m_slope;
+
 	TCanvas *calCanv;
 	TF1 *rescal_ch2fch;
 	TF1 *rescal_e2fe;

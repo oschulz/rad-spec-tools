@@ -1,5 +1,6 @@
 // Copyright (C) 2013 Thomas Quante <thomas.quante@tu-dortmund.de>
 //               2014 Lucia Garbini <garbini@mpp.mpg.de>
+//               2014 Oliver Schulz <oschulz@mpp.mpg.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -22,13 +23,10 @@
 
 #include "rsptutils.h"
 
+using namespace std;
+
 
 namespace rspt{
-
-
-double SQRTQuadFunct(double *x, double *par) {
-	return sqrt( pow(par[0],2) + pow(par[1],2) * x[0] + pow(par[2],2) * pow(x[0],2) );
-}
 
 
 SDCalibrator::SDCalibrator() {
@@ -74,7 +72,7 @@ void SDCalibrator::addResult(SDFitData* data) {
 			nAdds++;
 
 			// add new calibration point to old graph
-			std::cerr<<"to put in the graph: Energy = "<<data->getEnergy(i)<<"\t ADC channel = "<<data->getMean(i)<<std::endl;
+			cerr << "to put in the graph: Energy = "<<data->getEnergy(i)<<"\t ADC channel = "<<data->getMean(i) << endl;
 			cal_graph->SetPoint(cal_graph->GetN(),data->getEnergy(i),data->getMean(i));
 			cal_graph->SetPointError(cal_graph->GetN()-1,0,data->getMeanError(i));
 
@@ -106,19 +104,19 @@ int SDCalibrator::calibrate() {
 
 		// Copy "cal_fit" as "calEqn" (as calibration equation) and invert it (to x=channel, y=energy)
 		cal_ch2e = (TF1*)cal_e2ch->Clone("cal_ch2e");
-		rspt::transposePol1(&cal_ch2e);
+		rspt::transposePol1(cal_ch2e);
 		m_objects->Add(cal_ch2e);
 		cal_ch2e->SetRange(0,60000);//changed for susie
 		cal_ch2e->SetNameTitle("cal_ch2e","Calibration E(Ch)");
 		cal_ch2e->GetXaxis()->SetTitle("Channels");
 		cal_ch2e->GetYaxis()->SetTitle("Energy");
 
-		intercept = cal_ch2e->GetParameter(0);
-		slope = cal_ch2e->GetParameter(1);
+		m_intercept = cal_ch2e->GetParameter(0);
+		m_slope = cal_ch2e->GetParameter(1);
 
-		std::cerr<<"Calibration function: "<<cal_ch2e->GetParameter(1)<<"*x + "<<cal_ch2e->GetParameter(0)<<std::endl;
+		cerr << "Calibration function: " << cal_ch2e->GetParameter(1) << "*x + " << cal_ch2e->GetParameter(0) << endl;
 	} else {
-		std::cerr << "Less than 2 point in calibration graph. Skipping fit for calibration equation.\n";
+		cerr << "Less than 2 point in calibration graph. Skipping fit for calibration equation.\n";
 	}
 
 
@@ -148,7 +146,7 @@ int SDCalibrator::calibrate() {
 		delete rescal_ch2fch_lin;
 
 
-		std::cerr << "Fit results for calibration equation:" << std::endl;
+		cerr << "Fit results for calibration equation:" << endl;
 		rescal_graph->Fit("rescal_ch2fch");
 
 		rescal_graph->GetFunction("rescal_ch2fch")->ResetBit(512);
@@ -160,7 +158,7 @@ int SDCalibrator::calibrate() {
 		rescal_e2fe->SetLineColor(3);
 		rescal_e2fe->SetLineWidth(1);
 	} else {
-		std::cerr << "Less than 2 point in resolution graph. Skipping fit for resolution equation.\n";
+		cerr << "Less than 2 point in resolution graph. Skipping fit for resolution equation." << endl;
 	}
 
 	return 1;

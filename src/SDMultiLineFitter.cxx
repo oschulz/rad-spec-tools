@@ -1,5 +1,6 @@
 // Copyright (C) 2013 Thomas Quante <thomas.quante@tu-dortmund.de>
 //               2014 Lucia Garbini <garbini@mpp.mpg.de>
+//               2014 Oliver Schulz <oschulz@mpp.mpg.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -24,19 +25,16 @@
 #include "rsptutils.h"
 #include "HistAnalysis.h"
 
+using namespace std;
+
 
 namespace rspt{
 
 
-SDMultiLineFitter::SDMultiLineFitter() {
-	m_preCalibration_ch2e=0;
-	m_preCalibration_e2ch=0;
-	debug=true;
+SDMultiLineFitter::SDMultiLineFitter()
+	: m_preCalibration_ch2e(0), m_preCalibration_e2ch(0), debug(true)
+{
 	init();
-}
-
-
-SDMultiLineFitter::~SDMultiLineFitter() {
 }
 
 
@@ -53,7 +51,7 @@ void SDMultiLineFitter::setRange(double lowEdge, double highEdge) {
 	} else {
 		m_low_limit = 0;
 		m_high_limit = 0;
-		std::cerr << "lower Limit > higherLimit. Reset to full range." << std::endl;
+		cerr << "lower Limit > higherLimit. Reset to full range." << endl;
 	}
 }
 
@@ -63,7 +61,7 @@ void SDMultiLineFitter::setPreCal(double slope, double intercept) {
 	m_preCalibration_ch2e->SetParameter(1, slope);
 	m_preCalibration_ch2e->SetParameter(0, intercept);
 	m_preCalibration_e2ch = (TF1*)m_preCalibration_ch2e->Clone();
-	transposePol1(&m_preCalibration_e2ch);
+	transposePol1(m_preCalibration_e2ch);
 }
 
 
@@ -71,9 +69,9 @@ void SDMultiLineFitter::setPreCal(TF1* precal_ch2e) {
 	if (precal_ch2e!=0) {
 		m_preCalibration_ch2e = dynamic_cast<TF1*>(precal_ch2e->Clone());
 		m_preCalibration_e2ch = dynamic_cast<TF1*>(m_preCalibration_ch2e->Clone());
-		transposePol1(&m_preCalibration_e2ch);
+		transposePol1(m_preCalibration_e2ch);
 	} else {
-		std::cerr << "Provided precalibration function is invalid: 0 ptr" << std::endl;
+		cerr << "Provided precalibration function is invalid: 0 ptr" << endl;
 	}
 }
 
@@ -92,31 +90,27 @@ void SDMultiLineFitter::resetPreCal() {
 
 
 void SDMultiLineFitter::setSigma(float sig) {
-	if (sig > 0) m_sigma=sig;
-	else std::cerr << "sigma must be greater than zero" << std::endl;
+	if (sig > 0) m_sigma = sig;
+	else cerr << "sigma must be greater than zero" << endl;
 }
 
 
-void SDMultiLineFitter::setThreshold(double thresh)
-{
-	if (thresh > 0) {
-		m_threshold=thresh;
-	} else {
-		std::cerr<<"threshold must be greater than zero"<<std::endl;
-	}
+void SDMultiLineFitter::setThreshold(double thresh) {
+	if (thresh > 0) m_threshold = thresh;
+	else cerr << "threshold must be greater than zero" << endl;
 }
 
 
 std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,int iter,int lines_to_fit) {
 	double fitrange = m_width * m_preCalibration_e2ch->Eval(energy[iter]);
 	double extended_fitrange = fitrange;
-	int fitted_lines = 1;
 
+	int fitted_lines = 1;
 	if (iter < lines_to_fit - 1) {
 		while (true) {
 			if (iter!=lines_to_fit-1) {
 				if(m_preCalibration_e2ch->Eval(energy[iter])+extended_fitrange<m_preCalibration_e2ch->Eval(energy[iter+fitted_lines])) {
-					if ( debug ) std::cerr << "e2ch(E[" << iter << "])+0.05*e2ch(E[" << iter << "]) < e2ch(E[" << iter+fitted_lines << "])" << std::endl;
+					if ( debug ) cerr << "e2ch(E[" << iter << "])+0.05*e2ch(E[" << iter << "]) < e2ch(E[" << iter+fitted_lines << "])" << endl;
 					break;
 				}
 
@@ -128,22 +122,22 @@ std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,in
 			} else break;
 		}
 	}
-	return std::make_pair(extended_fitrange, fitted_lines);
+	return make_pair(extended_fitrange, fitted_lines);
 }
 
 
-std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
+std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 	std::vector<double> energy, double s_factor, std::vector<bool> *reject_res_cal)
 {
-	std::vector<rspt::SDFitData*> fits;
+	vector<SDFitData*> fits;
 
 	if (raw_hist == 0) {
-		std::cerr << "raw_hist ptr is invalid" << std::endl;
+		cerr << "raw_hist ptr is invalid" << endl;
 		return fits;
 	}
 
 	if (m_preCalibration_ch2e == 0) {
-		std::cerr << "does not find a precalibration aborting" << std::endl;
+		cerr << "does not find a precalibration aborting" << endl;
 		return fits;
 	}
 
@@ -154,13 +148,13 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 	spec->SetResolution(m_sigma);
 
 	int lines_to_fit = npeaks;
-	rspt::SDFitData *result;
+	SDFitData *result;
 
-	if ( debug ) for (unsigned int i = 0; i < npeaks; ++i) std::cerr<<"energy["<<i<<"] = "<<energy[i]<<"\t ADC channel["<<i<<"] = "<<m_preCalibration_e2ch->Eval(energy[i])<<std::endl;
+	if (debug) for (unsigned int i = 0; i < npeaks; ++i) cerr << "energy["<<i<<"] = " << energy[i] << "\t ADC channel[" << i << "] = " << m_preCalibration_e2ch->Eval(energy[i]) << endl;
 
 	for (unsigned int i = 0; i < npeaks; ++i) {
 		double fitrange = m_width*m_preCalibration_e2ch->Eval(energy[i]);
-		std::pair<double,int> range_info = getRange(energy, i, lines_to_fit);
+		pair<double,int> range_info = getRange(energy, i, lines_to_fit);
 
 		lines_to_fit -= range_info.second;
 
@@ -170,25 +164,25 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 		);
 
 		if (debug) {
-			std::cerr << " " << std::endl;
-			std::cerr << " ********* i = " << i << " *********" << std::endl;
-			std::cerr << "e2ch(E["<<i<<"]) = " << m_preCalibration_e2ch->Eval(energy[i]) << "\t extended_fitrange = " << range_info.first << "\t fitted_lines = " << range_info.second << std::endl;
-			std::cerr << "lines_to_fit = " << lines_to_fit << std::endl;
-			std::cerr << "raw_hist X axis Range User = " << m_preCalibration_e2ch->Eval(energy[i])-fitrange << ", " << m_preCalibration_e2ch->Eval(energy[i]) + range_info.first << std::endl;
+			cerr << " " << endl;
+			cerr << " ********* i = " << i << " *********" << endl;
+			cerr << "e2ch(E["<<i<<"]) = " << m_preCalibration_e2ch->Eval(energy[i]) << "\t extended_fitrange = " << range_info.first << "\t fitted_lines = " << range_info.second << endl;
+			cerr << "lines_to_fit = " << lines_to_fit << endl;
+			cerr << "raw_hist X axis Range User = " << m_preCalibration_e2ch->Eval(energy[i])-fitrange << ", " << m_preCalibration_e2ch->Eval(energy[i]) + range_info.first << endl;
 		}
 
-		TSpectrum *spec = rspt::HistAnalysis::findPeaks(raw_hist, "", s_factor * energy[i], m_threshold);
-		TF1 *fit = rspt::HistAnalysis::fitPeaks(raw_hist, spec, "+", "", false, "pol1", s_factor*energy[i]);
+		TSpectrum *spec = HistAnalysis::findPeaks(raw_hist, "", s_factor * energy[i], m_threshold);
+		TF1 *fit = HistAnalysis::fitPeaks(raw_hist, spec, "+", "", false, "pol1", s_factor*energy[i]);
 
 		int n_tspec_peaks = spec->GetNPeaks();
 		fit->ResetBit(512);
 
 		if (fit != 0) {
-			result = new rspt::SDFitData(fit, n_tspec_peaks);
-			rspt::desiredPeak(i, range_info.second, energy, result, m_preCalibration_ch2e);
+			result = new SDFitData(fit, n_tspec_peaks);
+			desiredPeak(i, range_info.second, energy, result, m_preCalibration_ch2e);
 			fits.push_back(result);
         } else {
-        	std::cerr << "fit failed! continue" << std::endl;
+        	cerr << "fit failed! continue" << endl;
         }
 
 		if (reject_res_cal != 0) {

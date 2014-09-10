@@ -1,5 +1,6 @@
 // Copyright (C) 2013 Thomas Quante <thomas.quante@tu-dortmund.de>
 //               2014 Lucia Garbini <garbini@mpp.mpg.de>
+//               2014 Oliver Schulz <oschulz@mpp.mpg.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -27,7 +28,10 @@
 namespace rspt{
 
 
-void transposePol1(TF1 **input);
+double SQRTQuadFunct(double *x, double *par);
+
+
+void transposePol1(TF1 *hist);
 
 /// @brief Checks if the tested mean is compatible with precalibration
 int desiredPeak(int iter, int fitted_lines, std::vector< double > energy, SDFitData *fit, TF1 *cal_ch2e) ;
