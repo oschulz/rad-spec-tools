@@ -28,24 +28,25 @@ namespace rspt{
 
 class SDFitData {
 public:
-	SDFitData(TF1 *fit, int npeaks);
+	SDFitData(TF1 *fit, size_t npeaks);
 	virtual ~SDFitData();
 
-	double getMean(size_t index);
-	double getMeanError(size_t index);
-	double getSigma(size_t index);
-	double getSigmaError(size_t index);
+	int getNPeaks() { return m_npeaks; }
 
-	bool getUsage(size_t index);
-	bool setUsage(size_t index, bool use=true);
+	double getMean(size_t index) const;
+	double getMeanError(size_t index) const;
 
-	int getNPeaks() {return m_npeaks;}
+	double getSigma(size_t index) const;
+	double getSigmaError(size_t index) const;
 
-	double getEnergy(size_t index);
+	bool getUsage(size_t index) const;
+	void setUsage(size_t index, bool use=true);
+
+	bool getResUsage(size_t index) const;
+	void setResUsage(size_t index, bool use=true);
+
+	double getEnergy(size_t index) const;
 	void setEnergy(size_t index, double energy);
-
-	bool getResUsage(size_t index);
-	bool setResUsage(size_t index, bool use=true);
 
 protected:
 	bool m_valid;
@@ -57,6 +58,10 @@ protected:
 	std::vector<bool> m_usage;
 	std::vector<bool> m_res_usage;
 	std::vector<double> m_energy;
+
+	size_t getParNumber(const char* nameForm, size_t index) const;
+	double getParValue(const char* nameForm, size_t index) const;
+	double getParError(const char* nameForm, size_t index) const;
 };
 
 
