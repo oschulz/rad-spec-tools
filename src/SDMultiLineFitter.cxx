@@ -19,7 +19,9 @@
 
 #include "SDMultiLineFitter.h"
 
+#include <stdexcept>
 #include <memory>
+
 #include <TSpectrum.h>
 
 #include "rsptutils.h"
@@ -51,7 +53,7 @@ void SDMultiLineFitter::setRange(double lowEdge, double highEdge) {
 	} else {
 		m_low_limit = 0;
 		m_high_limit = 0;
-		cerr << "lower Limit > higherLimit. Reset to full range." << endl;
+		if (debug) cerr << "lower Limit > higherLimit. Reset to full range." << endl;
 	}
 }
 
@@ -66,13 +68,11 @@ void SDMultiLineFitter::setPreCal(double slope, double intercept) {
 
 
 void SDMultiLineFitter::setPreCal(TF1* precal_ch2e) {
-	if (precal_ch2e!=0) {
-		m_preCalibration_ch2e = dynamic_cast<TF1*>(precal_ch2e->Clone());
-		m_preCalibration_e2ch = dynamic_cast<TF1*>(m_preCalibration_ch2e->Clone());
-		transposePol1(m_preCalibration_e2ch);
-	} else {
-		cerr << "Provided precalibration function is invalid: 0 ptr" << endl;
-	}
+	if (precal_ch2e == 0) throw invalid_argument("Provided precalibration function is invalid (nullptr)");
+
+	m_preCalibration_ch2e = dynamic_cast<TF1*>(precal_ch2e->Clone());
+	m_preCalibration_e2ch = dynamic_cast<TF1*>(m_preCalibration_ch2e->Clone());
+	transposePol1(m_preCalibration_e2ch);
 }
 
 
@@ -91,17 +91,17 @@ void SDMultiLineFitter::resetPreCal() {
 
 void SDMultiLineFitter::setSigma(float sig) {
 	if (sig > 0) m_sigma = sig;
-	else cerr << "sigma must be greater than zero" << endl;
+	else throw invalid_argument("sigma must be greater than zero");
 }
 
 
 void SDMultiLineFitter::setThreshold(double thresh) {
 	if (thresh > 0) m_threshold = thresh;
-	else cerr << "threshold must be greater than zero" << endl;
+	else throw invalid_argument("threshold must be greater than zero");
 }
 
 
-std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,int iter,int lines_to_fit) {
+std::pair<double, int> SDMultiLineFitter::getRange(std::vector<double> energy,int iter,int lines_to_fit) {
 	double fitrange = m_width * m_preCalibration_e2ch->Eval(energy[iter]);
 	double extended_fitrange = fitrange;
 
@@ -110,7 +110,7 @@ std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,in
 		while (true) {
 			if (iter!=lines_to_fit-1) {
 				if(m_preCalibration_e2ch->Eval(energy[iter])+extended_fitrange<m_preCalibration_e2ch->Eval(energy[iter+fitted_lines])) {
-					if ( debug ) cerr << "e2ch(E[" << iter << "])+0.05*e2ch(E[" << iter << "]) < e2ch(E[" << iter+fitted_lines << "])" << endl;
+					if (debug) cerr << "e2ch(E[" << iter << "])+0.05*e2ch(E[" << iter << "]) < e2ch(E[" << iter+fitted_lines << "])" << endl;
 					break;
 				}
 
@@ -129,17 +129,10 @@ std::pair< double,int> SDMultiLineFitter::getRange(std::vector<double> energy,in
 std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 	std::vector<double> energy, double s_factor, std::vector<bool> *reject_res_cal)
 {
+	if (raw_hist == 0) throw invalid_argument("raw_hist is invalid (nullptr)");
+	if (m_preCalibration_ch2e == 0) throw logic_error("No precalibration available");
+
 	vector<SDFitData*> fits;
-
-	if (raw_hist == 0) {
-		cerr << "raw_hist ptr is invalid" << endl;
-		return fits;
-	}
-
-	if (m_preCalibration_ch2e == 0) {
-		cerr << "does not find a precalibration aborting" << endl;
-		return fits;
-	}
 
 	int npeaks = energy.size();
 	if ( m_low_limit < m_high_limit ) raw_hist->GetXaxis()->SetRangeUser(m_low_limit, m_high_limit);
