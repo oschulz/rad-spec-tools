@@ -29,7 +29,9 @@ using namespace std;
 namespace rspt{
 
 
-SDCalibrator::SDCalibrator() {
+SDCalibrator::SDCalibrator()
+	: m_objects(0)
+{
 	init();
 }
 
@@ -39,9 +41,9 @@ SDCalibrator::~SDCalibrator() {
 
 
 void SDCalibrator::init() {
-	if (rescal_graph == 0 || cal_graph == 0) setupCalGraphs();
-
 	m_objects = new TList();
+
+	if (rescal_graph == 0 || cal_graph == 0) setupCalGraphs();
 
 	rescal_ch2fch = 0;
 	rescal_e2fe = 0;
