@@ -20,6 +20,10 @@
 #ifndef RSPT_RSPTUTILS_H
 #define UTILS_H
 
+#include <utility>
+#include<iostream>
+#include <vector>
+
 #include <TF1.h>
 
 #include "SDFitData.h"
@@ -32,7 +36,7 @@ double SQRTQuadFunct(double *x, double *par);
 
 
 void transposePol1(TF1 *hist);
-
+static bool compare_pair( std::pair <double,int> a, std::pair<double,int> b );
 /// @brief Checks if the tested mean is compatible with precalibration
 int desiredPeak(int iter, int fitted_lines, std::vector< double > energy, SDFitData *fit, TF1 *cal_ch2e) ;
 

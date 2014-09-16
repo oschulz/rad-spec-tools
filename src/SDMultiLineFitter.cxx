@@ -174,9 +174,9 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 			result = new SDFitData(fit, n_tspec_peaks);
 			desiredPeak(i, range_info.second, energy, result, m_preCalibration_ch2e);
 			fits.push_back(result);
-        } else {
+		} else {
         	cerr << "fit failed! continue" << endl;
-        }
+		}
 
 		if (reject_res_cal != 0) {
 			if (reject_res_cal->size() == energy.size()) {

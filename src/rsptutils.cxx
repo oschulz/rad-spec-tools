@@ -19,16 +19,16 @@
 
 #include "rsptutils.h"
 
+#include<iostream>
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 #include <TAxis.h>
 
 using namespace std;
 
-
 namespace rspt{
-
 
 double SQRTQuadFunct(double *x, double *par) {
 	return sqrt( pow(par[0],2) + pow(par[1],2) * x[0] + pow(par[2],2) * pow(x[0],2) );
@@ -53,6 +53,9 @@ void transposePol1(TF1 *hist) {
 	hist->GetYaxis()->SetTitle(xTitle.c_str());
 }
 
+bool compare_pair( std::pair<double,int> a, std::pair<double,int> b ){
+    return( a.first < b.first );
+}
 
 int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitData *fit, TF1 *cal_ch2e) {
 	int peakdesired=0;
@@ -60,19 +63,21 @@ int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitDat
 
 	for (unsigned int j = iter; j < iter+fitted_lines; j++) {
 		cerr << "energy[" << j << "] = " << energy[j] << endl;
-		peakdesired = 0;
+		std::vector<std::pair<double, int> > peak_des_all;
 
 		for (int h = 1; h <= fit->getNPeaks(); h++) {
-			if (TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))) < fit_residual) {
-				peakdesired = h;
-				cerr << "peakdesired = " << fit->getMean(h) << "\t " << cal_ch2e->Eval(fit->getMean(h)) << "\t residual = " << TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))) << endl;
-				fit_residual = TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h)));
-			}
+			std::pair<double,int> peak_des;
+			peak_des = make_pair(TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))), h);
+			cerr << "h = "<<h<<", ADC= " << fit->getMean(h) << "\t energy= " << cal_ch2e->Eval(fit->getMean(h)) << "\t residual = " << TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))) << endl;
+			peak_des_all.push_back(peak_des);
 		}
+
+		std::sort( peak_des_all.begin(), peak_des_all.end(), compare_pair);
+		cerr<<"desired peak = "<<peak_des_all[0].second<<endl;
+		if ( peak_des_all[0].first< fit_residual) peakdesired = peak_des_all[0].second;
 
 		fit->setUsage(peakdesired);
 		fit->setEnergy(peakdesired,energy[j]);
-		fit_residual = 100;
 	}
 	return 0;
 }
