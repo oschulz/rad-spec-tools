@@ -34,25 +34,29 @@
 bool compare_pair(float first,float second){
     return(first<second);
 }
-int main(int argc, char **argv){
-
+// int main(int argc, char **argv){
+int pre_cal_test(){
     std::string histname="raw_hist";
     std::string inputname;
-    std::string rad_source="th";
+    std::string rad_source="th232";
     float threshold=0.01;
     float sigma=1;
     int opt = 0;
-    while ((opt = getopt(argc, argv, "?n:h:r:t:s:")) != -1) {
-        switch (opt) {
-            case '?': {; return 0; }
-            case 'n': {inputname=optarg ; break;}
-            case 'h': {histname=optarg;break;}
-            case 'r': {rad_source=optarg;break;}
-            case 't': {threshold=atof(optarg);break;}
-            case 's': {sigma=atof(optarg);break;}
-            default:{std::string error="Unkown command line option ";error+=opt; throw std::invalid_argument(error.c_str());}
-        }
-    }
+//     while ((opt = getopt(argc, argv, "?n:h:r:t:s:")) != -1) {
+//         switch (opt) {
+//             case '?': {; return 0; }
+//             case 'n': {inputname=optarg ; break;}
+//             case 'h': {histname=optarg;break;}
+//             case 'r': {rad_source=optarg;break;}
+//             case 't': {threshold=atof(optarg);break;}
+//             case 's': {sigma=atof(optarg);break;}
+//             default:{std::string error="Unkown command line option ";error+=opt; throw std::invalid_argument(error.c_str());}
+//         }
+//     }
+	histname="raw_hist";
+// 	inputname="calibration.root";
+	inputname="galatea_core_spec.root";
+	rad_source="gs";
     gSystem->Load("libTree");
     gROOT->ProcessLine("#include <vector>");
     
@@ -62,13 +66,14 @@ int main(int argc, char **argv){
     TSpectrum *spec=new TSpectrum(100);
     double width;
     if(raw_hist!=0){
-        rspt::SDPreCal precal;
+        rspt::SDPreCal precal(0,8196);
+		raw_hist->GetXaxis()->SetRangeUser(400,8196);
         if(rad_source=="gs"){
              raw_hist->GetXaxis()->SetRangeUser(7000,60000);
         }
         int npeaks=spec->Search(raw_hist,sigma,"",threshold);
-        float* x_pos=spec->GetPositionX();
-        float* y_pos=spec->GetPositionY();
+        Double_t* x_pos=spec->GetPositionX();
+        Double_t* y_pos=spec->GetPositionY();
         std::vector< double > peakinfo;
         for(int i_peak=0;i_peak<npeaks;++i_peak){
             peakinfo.push_back(x_pos[i_peak]);
@@ -101,7 +106,7 @@ int main(int argc, char **argv){
             precal.setDistThres(0.05);
             double energy_iso1_spec[] = {609.3,778.9,964.08,1085.9,1112.1,1408,1764.5,2614.533};
             int nlines=8;
-            width=0.4;
+            width=0.04;
             for(int i=0;i<nlines;i++){
                 line_info.push_back(energy_iso1_spec[i]);
             }
@@ -111,13 +116,17 @@ int main(int argc, char **argv){
         
 
 
-        TF1* precalibration=precal.calcPreCal(line_info,peakinfo);
+        TGraph* precalibration=precal.calcPreCal(line_info,peakinfo);
+		TFile *output=new TFile("test_calibration.root","recreate");
         if(precalibration!=NULL){
-            std::cout<<"precal: "<<precalibration->GetParameter(1)<<"x+"<<precalibration->GetParameter(0)<<std::endl;
-            TFile *output=new TFile("test_calibration.root","recreate");
+			TF1* pre_cal_fct=dynamic_cast<TF1*>(precalibration->GetFunction("fit"));
+            std::cout<<"precal: "<<pre_cal_fct->GetParameter(1)<<"x+"<<pre_cal_fct->GetParameter(0)<<std::endl;
+            precalibration->Write();
+			pre_cal_fct->Write();
+			pre_cal_fct->SetParameter(0,0);
             rspt::SDMultiLineFitter mfitter;
             rspt::SDCalibrator cal;
-            mfitter.setPreCal(precalibration);
+            mfitter.setPreCal(pre_cal_fct);
             mfitter.setWidth(width);
             mfitter.setSigma(sigma);
             mfitter.setThreshold(threshold);

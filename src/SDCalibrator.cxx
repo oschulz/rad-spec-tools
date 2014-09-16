@@ -40,11 +40,11 @@ SDCalibrator::~SDCalibrator(){
 void SDCalibrator::init()
 {
 
-
+	m_objects=new TList();
 	if(rescal_graph==0||cal_graph==0){
 		setupCalGraphs();
 	}
-	m_objects=new TList();
+	
 
 	rescal_ch2fch=NULL;
 	rescal_e2fe=NULL;

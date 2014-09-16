@@ -56,7 +56,7 @@ public:
 }; 
 class SDPreCal {
 public:
-	typedef rspt::DescriptiveStatistics<float> Stats;
+	typedef rspt::DescriptiveStatistics<double> Stats;
 	typedef std::pair< DescriptiveStatistics<double>, DescriptiveStatistics<double> > Stats_pair;
 	typedef std::vector<std::pair< int, int > > Mapping;
 	typedef std::pair< double,double > Line;
@@ -68,7 +68,7 @@ public:
 		Stats stats;
 	};
 	SDPreCal( double l_mca, double h_mca );
-	TF1* calcPreCal(std::vector<double > source_lines, std::vector< double> data_lines);
+	TGraph* calcPreCal(std::vector<double > source_lines, std::vector< double> data_lines);
 	virtual ~SDPreCal();
 	void setDistThres(double thres){m_dist_thres=thres;}
 	next_line_info genLineInfo(next_line_info prev,int next_s,int next_d);
@@ -90,11 +90,12 @@ protected:
 	TGraph *precal_graph;
 
 
-	inline double calcError(SDPreCal::Stats x) {return x.sigma();};
-
+	inline double calcError(SDPreCal::Stats x) {return std::abs(double(1)-x.mean());};
+// 	inline double calcError(SDPreCal::Stats x) {return std::abs(x.sigma());};
+	
 	SDPreCal::Stats match(next_line_info next);
 
-	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap(next_line_info next, SDPreCal::Mapping prevMap ,int calls);
+	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap(next_line_info next, SDPreCal::Mapping prevMap );
 
     
 };
