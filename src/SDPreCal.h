@@ -62,7 +62,7 @@ public:
 		DescriptiveStatistics() { clear(); }
 	};
 
-	typedef DescriptiveStatistics<float> Stats;
+	typedef DescriptiveStatistics<double> Stats;
 	typedef std::pair< DescriptiveStatistics<double>, DescriptiveStatistics<double> > Stats_pair;
 	typedef std::vector<std::pair< int, int > > Mapping;
 	typedef std::pair< double,double > Line;
@@ -78,7 +78,7 @@ public:
 	SDPreCal(double l_mca, double h_mca);
 	virtual ~SDPreCal();
 
-	TF1* calcPreCal(std::vector<double> source_lines, std::vector<double> data_lines);
+	TGraph* calcPreCal(std::vector<double> source_lines, std::vector<double> data_lines);
 	void setDistThres(double thres) { m_dist_thres = thres; }
 	next_line_info genLineInfo(next_line_info prev, int next_s, int next_d);
 
@@ -97,11 +97,16 @@ protected:
 	TF1* fit;
 	TGraph *precal_graph;
 
-	double calcError(SDPreCal::Stats x) { return x.sigma(); }
 
+
+	inline double calcError(SDPreCal::Stats x) {return std::abs(double(1)-x.mean());};
+
+	
 	SDPreCal::Stats match(next_line_info next);
 
-	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap(next_line_info next, SDPreCal::Mapping prevMap, int calls);
+	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap(next_line_info next, SDPreCal::Mapping prevMap );
+
+    
 };
 
 
