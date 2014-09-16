@@ -54,9 +54,9 @@ int pre_cal_test(){
 //         }
 //     }
 	histname="raw_hist";
-// 	inputname="calibration.root";
-	inputname="galatea_core_spec.root";
-	rad_source="gs";
+	inputname="calibration.root";
+// 	inputname="galatea_core_spec.root";
+// 	rad_source="gs";
     gSystem->Load("libTree");
     gROOT->ProcessLine("#include <vector>");
     
