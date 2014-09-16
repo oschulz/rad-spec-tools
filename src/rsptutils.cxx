@@ -59,7 +59,7 @@ bool compare_pair( std::pair<double,int> a, std::pair<double,int> b ){
 
 int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitData *fit, TF1 *cal_ch2e) {
 	int peakdesired=0;
-	double fit_residual=50;
+	double fit_residual=5;
 
 	for (unsigned int j = iter; j < iter+fitted_lines; j++) {
 		cerr << "energy[" << j << "] = " << energy[j] << endl;
@@ -75,6 +75,7 @@ int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitDat
 		std::sort( peak_des_all.begin(), peak_des_all.end(), compare_pair);
 		cerr<<"desired peak = "<<peak_des_all[0].second<<endl;
 		if ( peak_des_all[0].first< fit_residual) peakdesired = peak_des_all[0].second;
+		else continue;
 
 		fit->setUsage(peakdesired);
 		fit->setEnergy(peakdesired,energy[j]);
