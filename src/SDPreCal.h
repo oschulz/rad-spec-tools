@@ -62,6 +62,8 @@ public:
 		DescriptiveStatistics() { clear(); }
 	};
 
+	static bool compare_pair(std::pair<double,std::pair<int,int> > a, std::pair<double,std::pair<int,int> > b);
+
 	typedef DescriptiveStatistics<float> Stats;
 	typedef std::pair< DescriptiveStatistics<double>, DescriptiveStatistics<double> > Stats_pair;
 	typedef std::vector<std::pair< int, int > > Mapping;
