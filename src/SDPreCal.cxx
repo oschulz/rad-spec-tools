@@ -202,9 +202,9 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 	int j_first_data_line;
 	int i_second_data_line;
 	int j_second_data_line;
-	
+
 	for (int i_first = 0; i_first < data_lines.size(); ++i_first ){
-		for (int j_first = i_first + 1; j_first < data_lines.size(); ++j_first) {
+		if (data_lines.size() > (i_first+1)) for (int j_first = i_first + 1; j_first < data_lines.size(); ++j_first) {
 			double data_fact_first = (data_lines[j_first] - data_lines[i_first]) / data_lines[j_first];
 			double comp_first = abs(1 - (data_fact_first/start_fact_first));
 			std::pair<int,int> data_ind_firstPair;
@@ -222,55 +222,63 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 				std::cerr << std::endl;
 			}
 		}
+		else {
+			cerr <<"Number of peaks found with TSpectrum not enough to proceed with Precalibration"<<endl;
+			continue;
+		}
 		std::sort( comp_firstPair_all.begin(), comp_firstPair_all.end(), compare_pair);
 		if (debug) std::cerr<<"best comp_first = "<<comp_firstPair_all[0].first<<" \t i_first = "<<comp_firstPair_all[0].second.first<<" , j_first = "<<comp_firstPair_all[0].second.second<<std::endl;
 		if ( comp_firstPair_all[0].first>0 && comp_firstPair_all[0].first<0.05 ) {
 			i_first_data_line = comp_firstPair_all[0].second.first;
 			j_first_data_line =  comp_firstPair_all[0].second.second;
 			for (int i_second = j_first_data_line; i_second<data_lines.size(); ++i_second) {
-					for (int j_second = j_first_data_line + 1; j_second<data_lines.size(); ++j_second) {
-						double data_fact_second = (data_lines[j_second] - data_lines[i_second]) / data_lines[j_second];
-						double comp_second = abs(1-(data_fact_second/start_fact_second ));
-						std::pair<int,int> data_ind_secondPair;
-						data_ind_secondPair = std::make_pair( i_second, j_second );
-						std::pair<double, std::pair<int,int>> comp_secondPair;
-						comp_secondPair = std::make_pair (comp_second, data_ind_secondPair);
-						comp_secondPair_all.push_back(comp_secondPair);
-						if (debug) {
-							std::cerr << std::endl;
-							std::cerr << "i_second: " << i_second << "\tj_second: " << j_second << std::endl;
-							std::cerr << "data_fact_second: " << data_fact_second << std::endl;
-							std::cerr << "data_lines[" << i_second << "]: " << data_lines[i_second] << "\tdata_lines[" << j_second << "]: " << data_lines[j_second] << std::endl;
-							std::cerr << "data_fact_second/start_fact_second "<< data_fact_second/start_fact_second<<std::endl;
-							std::cerr << "comp_second: " << comp_second << std::endl;
-							std::cerr << std::endl;
-						}
+				if (data_lines.size() > (j_first_data_line+1)) for (int j_second = j_first_data_line + 1; j_second<data_lines.size(); ++j_second) {
+					double data_fact_second = (data_lines[j_second] - data_lines[i_second]) / data_lines[j_second];
+					double comp_second = abs(1-(data_fact_second/start_fact_second ));
+					std::pair<int,int> data_ind_secondPair;
+					data_ind_secondPair = std::make_pair( i_second, j_second );
+					std::pair<double, std::pair<int,int>> comp_secondPair;
+					comp_secondPair = std::make_pair (comp_second, data_ind_secondPair);
+					comp_secondPair_all.push_back(comp_secondPair);
+					if (debug) {
+						std::cerr << std::endl;
+						std::cerr << "i_second: " << i_second << "\tj_second: " << j_second << std::endl;
+						std::cerr << "data_fact_second: " << data_fact_second << std::endl;
+						std::cerr << "data_lines[" << i_second << "]: " << data_lines[i_second] << "\tdata_lines[" << j_second << "]: " << data_lines[j_second] << std::endl;
+						std::cerr << "data_fact_second/start_fact_second "<< data_fact_second/start_fact_second<<std::endl;
+						std::cerr << "comp_second: " << comp_second << std::endl;
+						std::cerr << std::endl;
 					}
-					std::sort( comp_secondPair_all.begin(), comp_secondPair_all.end(), compare_pair);
-					if (debug) std::cerr<<"best comp_second = "<<comp_secondPair_all[0].first<<" \t i_second = "<<comp_secondPair_all[0].second.first<<" , j_first = "<<comp_secondPair_all[0].second.first<<std::endl;
-					if ( comp_secondPair_all[0].first>0 && comp_secondPair_all[0].first<0.05 ) {
-						i_second_data_line = comp_secondPair_all[0].second.first;
-						j_second_data_line =  comp_secondPair_all[0].second.second;
-						start.push_back(make_pair(0, i_first_data_line));
-						start.push_back(make_pair(1, i_second_data_line));
-						std::cerr << std::endl << "first two matches..." << std::endl;
-						stats.add( (data_lines[j_first_data_line] - data_lines[i_first_data_line]) / (source_lines[1] - source_lines[0]) );
-						stats.add( (data_lines[j_second_data_line] - data_lines[i_second_data_line]) / (source_lines[2] - source_lines[1]) );
-
-						std::cerr << "done\n" << std::endl;
-
-						found_start_val = true;
-
-						start_ind.d_ind_a = i_second_data_line;
-						start_ind.s_ind_a = 1;
-						start_ind.d_ind_b = j_second_data_line;
-						start_ind.s_ind_b = 2;
-						start_ind.stats = stats;
-
-						break;
-					}
-					else continue;
 				}
+				else {
+					cerr <<"Number of peaks found with TSpectrum not enough to proceed with Precalibration"<<endl;
+					continue;
+				}
+				std::sort( comp_secondPair_all.begin(), comp_secondPair_all.end(), compare_pair);
+				if (debug) std::cerr<<"best comp_second = "<<comp_secondPair_all[0].first<<" \t i_second = "<<comp_secondPair_all[0].second.first<<" , j_first = "<<comp_secondPair_all[0].second.first<<std::endl;
+				if ( comp_secondPair_all[0].first>0 && comp_secondPair_all[0].first<0.05 ) {
+					i_second_data_line = comp_secondPair_all[0].second.first;
+					j_second_data_line =  comp_secondPair_all[0].second.second;
+					start.push_back(make_pair(0, i_first_data_line));
+					start.push_back(make_pair(1, i_second_data_line));
+					std::cerr << std::endl << "first two matches..." << std::endl;
+					stats.add( (data_lines[j_first_data_line] - data_lines[i_first_data_line]) / (source_lines[1] - source_lines[0]) );
+					stats.add( (data_lines[j_second_data_line] - data_lines[i_second_data_line]) / (source_lines[2] - source_lines[1]) );
+
+					std::cerr << "done\n" << std::endl;
+
+					found_start_val = true;
+
+					start_ind.d_ind_a = i_second_data_line;
+					start_ind.s_ind_a = 1;
+					start_ind.d_ind_b = j_second_data_line;
+					start_ind.s_ind_b = 2;
+					start_ind.stats = stats;
+
+					break;
+				}
+				else continue;
+			}
 			break;
 		}
 		else continue;
