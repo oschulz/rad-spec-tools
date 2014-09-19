@@ -164,8 +164,9 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 			cerr << "raw_hist X axis Range User = " << m_preCalibration_e2ch->Eval(energy[i])-fitrange << ", " << m_preCalibration_e2ch->Eval(energy[i]) + range_info.first << endl;
 		}
 
+		cerr<<"Threshold for TSpectrum "<<m_threshold<<endl;
 		TSpectrum *spec = HistAnalysis::findPeaks(raw_hist, "", s_factor * energy[i], m_threshold);
-		TF1 *fit = HistAnalysis::fitPeaks(raw_hist, spec, "+", "", false, "pol1", s_factor*energy[i]);
+		TF1 *fit = HistAnalysis::fitPeaks(raw_hist, spec, "+QL", "", false, "pol1", s_factor*energy[i]);
 
 		int n_tspec_peaks = spec->GetNPeaks();
 		fit->ResetBit(512);
