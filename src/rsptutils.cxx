@@ -31,7 +31,7 @@ using namespace std;
 namespace rspt{
 
 double SQRTQuadFunct(double *x, double *par) {
-	return sqrt( pow(par[0],2) + pow(par[1],2) * x[0] + pow(par[2],2) * pow(x[0],2) );
+	return sqrt(pow(par[0],2) + pow(par[1],2) * x[0] + pow(par[2],2) * pow(x[0],2));
 }
 
 
@@ -53,8 +53,8 @@ void transposePol1(TF1 *hist) {
 	hist->GetYaxis()->SetTitle(xTitle.c_str());
 }
 
-bool compare_pair( std::pair<double,int> a, std::pair<double,int> b ){
-    return( a.first < b.first );
+bool compare_pair(std::pair<double,int> a, std::pair<double,int> b){
+    return(a.first < b.first);
 }
 
 int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitData *fit, TF1 *cal_ch2e) {
@@ -72,9 +72,11 @@ int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitDat
 			peak_des_all.push_back(peak_des);
 		}
 
-		std::sort( peak_des_all.begin(), peak_des_all.end(), compare_pair);
-		cerr<<"desired peak = "<<peak_des_all[0].second<<endl;
-		if ( peak_des_all[0].first< fit_residual) peakdesired = peak_des_all[0].second;
+		std::sort(peak_des_all.begin(), peak_des_all.end(), compare_pair);
+		if ( peak_des_all[0].first < fit_residual ) {
+			peakdesired = peak_des_all[0].second;
+			cerr<<"desired peak = "<<peakdesired<<endl;
+		}
 		else continue;
 
 		fit->setUsage(peakdesired);

@@ -54,7 +54,7 @@ SDPreCal::Stats SDPreCal::match(next_line_info next) {
 	dline_b = m_data_collection[next.d_ind_b];
 	double rx = (dline_b - dline_a) / (sline_b - sline_a);
 
-	if (sline_b - sline_a != 0 && dline_b-dline_a != 0) {
+	if ( (sline_b - sline_a != 0) && (dline_b-dline_a != 0) ) {
 		double rx = (dline_b - dline_a) / (sline_b - sline_a);
 		if (debug) {
 			std::cerr << "dline_b: " << dline_b << "\tdline_a: " << dline_a << "\tsline_b: " << sline_b << "\tsline_a: " << sline_a << std::endl;
@@ -175,7 +175,7 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 	}
 }
 
-bool SDPreCal::compare_pair( std::pair<double,std::pair<int,int> > a, std::pair<double,std::pair<int,int> > b ){
+bool SDPreCal::compare_pair(std::pair<double,std::pair<int,int> > a, std::pair<double,std::pair<int,int> > b){
     return( a.first < b.first );
 }
 
@@ -203,7 +203,7 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 	int i_second_data_line;
 	int j_second_data_line;
 
-	for (int i_first = 0; i_first < data_lines.size(); ++i_first ){
+	for (int i_first = 0; i_first < data_lines.size(); ++i_first){
 		if (data_lines.size() > (i_first+1)) for (int j_first = i_first + 1; j_first < data_lines.size(); ++j_first) {
 			double data_fact_first = (data_lines[j_first] - data_lines[i_first]) / data_lines[j_first];
 			double comp_first = abs(1 - (data_fact_first/start_fact_first));
@@ -228,7 +228,7 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 		}
 		std::sort( comp_firstPair_all.begin(), comp_firstPair_all.end(), compare_pair);
 		if (debug) std::cerr<<"best comp_first = "<<comp_firstPair_all[0].first<<" \t i_first = "<<comp_firstPair_all[0].second.first<<" , j_first = "<<comp_firstPair_all[0].second.second<<std::endl;
-		if ( comp_firstPair_all[0].first>0 && comp_firstPair_all[0].first<0.05 ) {
+		if ( (comp_firstPair_all[0].first>0) && (comp_firstPair_all[0].first<0.05) ) {
 			i_first_data_line = comp_firstPair_all[0].second.first;
 			j_first_data_line =  comp_firstPair_all[0].second.second;
 			for (int i_second = j_first_data_line; i_second<data_lines.size(); ++i_second) {
