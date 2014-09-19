@@ -69,9 +69,10 @@ int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitDat
 				fit_residual = TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h)));
 			}
 		}
-
-		fit->setUsage(peakdesired);
-		fit->setEnergy(peakdesired,energy[j]);
+		if(peakdesired>0){
+			fit->setUsage(peakdesired);
+			fit->setEnergy(peakdesired,energy[j]);
+		}
 		fit_residual = 100;
 	}
 	return 0;
