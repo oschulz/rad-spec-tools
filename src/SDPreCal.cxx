@@ -54,16 +54,11 @@ SDPreCal::Stats SDPreCal::match(next_line_info next) {
 	dline_b = m_data_collection[next.d_ind_b];
 	
 
-	
-
-	
 	double frac_source=(sline_b-sline_a)/sline_b;
 	double frac_data=(dline_b-dline_a)/dline_b;
 	double matching=frac_source/frac_data;
 	
 	next.stats.add(matching);
-
-
 	
 	return next.stats;
 }
@@ -89,8 +84,7 @@ SDPreCal::next_line_info SDPreCal::genLineInfo(next_line_info prev,int next_s,in
 	return out;
 }
 
-pair< SDPreCal::Mapping, SDPreCal::Stats > SDPreCal::genMap(SDPreCal::next_line_info next, SDPreCal::Mapping prevMap)
-{
+pair< SDPreCal::Mapping, SDPreCal::Stats > SDPreCal::genMap(SDPreCal::next_line_info next, SDPreCal::Mapping prevMap) {
 
 	std::pair<SDPreCal::Mapping, SDPreCal::Stats> return_val=make_pair(prevMap,next.stats);
 	
@@ -108,22 +102,6 @@ pair< SDPreCal::Mapping, SDPreCal::Stats > SDPreCal::genMap(SDPreCal::next_line_
 	
 	std::pair<SDPreCal::Mapping, SDPreCal::Stats> next_mapping;
 	
-// 	if(next.d_ind_b+1< m_data_size){
-// 		next_mapping=genMap(genLineInfo(next,0,1),prevMap);
-// 		if(calcError(next_mapping.second)<prev_err){
-// 			return_val=next_mapping;
-// 		}
-// 	}
-// 	if(next.s_ind_b+1< m_source_size){
-// 
-// 		next_mapping=genMap(genLineInfo(next,1,0),prevMap);
-// 		if(calcError(next_mapping.second)<prev_err){
-// 			return_val=next_mapping;
-// 		}
-// 	}
-
-	
-
 	for(int next_s_line=next.s_ind_b;next_s_line<m_source_size-1;++next_s_line){
 		for(int next_d_line=next.d_ind_b;next_d_line<m_data_size-1;++next_d_line){
 			next_mapping=genMap(genLineInfo(next,next_s_line-next.s_ind_b+1,next_d_line-next.d_ind_b+1),prevMap);
@@ -170,11 +148,8 @@ TGraph* SDPreCal::calcPreCal(std::vector< double > source_lines, std::vector< do
 					next.d_ind_b=d_line_next;
 					next.stats=match(next);
 
-		
-
 					if(calcError(next.stats)<0.05){
 						n_start_vals++;
-						std::cout<<"found next start val("<<n_start_vals<<")"<<std::endl;
 						startMap.push_back(make_pair(s_line_start,d_line_start));
 						curr_mapping=genMap(next,startMap);
 						std::cout<<"map ready"<<std::endl;
