@@ -1,5 +1,6 @@
 // Copyright (C) 2013 Oliver Schulz <oschulz@mpp.mpg.de>,
-//               2014 Lucia Garbini <garbini@mpp.mpg.de>
+//               2014 Lucia Garbini <garbini@mpp.mpg.de>,
+//               2014 Thomas Quante <thomas.quante@tu-dortmund.de>
 
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by
@@ -99,12 +100,12 @@ protected:
 
 
 
-	inline double calcError(SDPreCal::Stats x) {return std::abs(double(1)-x.mean());};
+	inline double calcError(SDPreCal::Stats x) {return std::abs(double(1) - x.mean());};
 
 	
 	SDPreCal::Stats match(next_line_info next);
 
-	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap(next_line_info next, SDPreCal::Mapping prevMap );
+	std::pair<SDPreCal::Mapping, SDPreCal::Stats> genMap(next_line_info next, SDPreCal::Mapping prevMap);
 
     
 };
