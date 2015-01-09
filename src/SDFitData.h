@@ -33,6 +33,18 @@ public:
 
 	int getNPeaks() { return m_npeaks; }
 
+	double getSkewFraction() const ;
+	double getSkewFractionError() const;
+
+	double getSkewWidth() const;
+	double getSkewWidthError() const;
+
+	double getStepAmpl(size_t index) const;
+	double getStepAmplError(size_t index) const;
+
+	double getPeakArea(size_t index) const;
+	double getPeakAreaError(size_t index) const;
+
 	double getMean(size_t index) const;
 	double getMeanError(size_t index) const;
 
