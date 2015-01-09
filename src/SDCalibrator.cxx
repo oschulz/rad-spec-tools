@@ -32,11 +32,40 @@ namespace rspt{
 SDCalibrator::SDCalibrator()
 	: m_objects(0)
 {
+    rescal_graph == 0;
+    cal_graph == 0;
 	init();
 }
 
 
 SDCalibrator::~SDCalibrator() {
+}
+
+void SDCalibrator::clear()
+{
+	m_objects->Clear();
+	delete m_objects;
+	m_objects=0;
+	if(rescal_ch2fch!=0){
+		delete rescal_ch2fch;
+		delete rescal_e2fe;
+	}
+
+	if(cal_ch2e!=0){
+		delete cal_ch2e;
+		delete cal_e2ch;
+	}
+
+	if(cal_graph!=0){
+		delete cal_graph;
+		delete rescal_graph;
+	}
+
+	if(calCanv !=0){
+		delete calCanv;
+	}
+	
+	init();
 }
 
 
@@ -88,7 +117,7 @@ void SDCalibrator::addResult(SDFitData* data) {
 }
 
 int SDCalibrator::calibrate() {
-	if (cal_graph->GetN() >= 2) {
+	if (cal_graph!=nullptr&& cal_graph->GetN() >= 2) {
 		bool point_removed=false;
 		cal_e2ch = new TF1("cal_e2ch","pol1",0,3000); // channel(energy)
 		cal_e2ch->SetTitle("Calibration Ch(E)");
@@ -122,7 +151,7 @@ int SDCalibrator::calibrate() {
 	}
 
 
-	if (rescal_graph->GetN() >= 2) {
+	if (cal_graph!=nullptr&&rescal_graph->GetN() >= 2) {
 		TF1 *rescal_ch2fch_lin = new TF1("rescal_ch2fch_lin", "pol1", 1, 10000);
 
 		// Fitting resolution with option  "W": Set all weights to 1 for non empty bins; ignore error bars;

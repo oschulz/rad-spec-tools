@@ -36,6 +36,7 @@ namespace rspt{
 SDMultiLineFitter::SDMultiLineFitter()
 	: m_preCalibration_ch2e(0), m_preCalibration_e2ch(0), debug(true)
 {
+    m_tspec_sigma=1;
 	init();
 }
 
@@ -95,14 +96,19 @@ void SDMultiLineFitter::setSigma(float sig) {
 }
 
 
+void SDMultiLineFitter::setTSpecSigma(double sig) {
+	if (sig > 0) m_tspec_sigma = sig;
+	else throw invalid_argument("sigma must be greater than zero");
+}
+
 void SDMultiLineFitter::setThreshold(double thresh) {
 	if (thresh > 0) m_threshold = thresh;
 	else throw invalid_argument("threshold must be greater than zero");
 }
 
 
-std::pair<double, int> SDMultiLineFitter::getRange(std::vector<double> energy,int iter,int lines_to_fit) {
-	double fitrange = m_width * m_preCalibration_e2ch->Eval(energy[iter]);
+std::pair<double, int> SDMultiLineFitter::getRange(std::vector<double> energy,int iter,int lines_to_fit ) {
+	double fitrange = m_width * m_preCalibration_e2ch->Eval(energy[iter])+40;
 	double extended_fitrange = fitrange;
 
 	int fitted_lines = 1;
@@ -127,7 +133,7 @@ std::pair<double, int> SDMultiLineFitter::getRange(std::vector<double> energy,in
 
 
 std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
-	std::vector<double> energy, double s_factor, std::vector<bool> *reject_res_cal)
+	std::vector<double> energy, double s_factor,const char* opt, std::vector<bool> *reject_res_cal)
 {
 	if (raw_hist == 0) throw invalid_argument("raw_hist is invalid (nullptr)");
 	if (m_preCalibration_ch2e == 0) throw logic_error("No precalibration available");
@@ -138,7 +144,7 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 	if ( m_low_limit < m_high_limit ) raw_hist->GetXaxis()->SetRangeUser(m_low_limit, m_high_limit);
 
 	TSpectrum *spec = new TSpectrum();
-	spec->SetResolution(m_sigma);
+// 	spec->SetResolution(m_sigma);
 
 	int lines_to_fit = npeaks;
 	SDFitData *result;
@@ -146,11 +152,14 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 	if (debug) for (unsigned int i = 0; i < npeaks; ++i) cerr << "energy["<<i<<"] = " << energy[i] << "\t ADC channel[" << i << "] = " << m_preCalibration_e2ch->Eval(energy[i]) << endl;
 
 	for (unsigned int i = 0; i < npeaks; ++i) {
-		double fitrange = m_width*m_preCalibration_e2ch->Eval(energy[i]);
+		double fitrange = m_width*m_preCalibration_e2ch->Eval(energy[i])+40;
 		pair<double,int> range_info = getRange(energy, i, lines_to_fit);
 
 		lines_to_fit -= range_info.second;
-
+// 		double new_range=(m_preCalibration_e2ch->Eval(energy[i]) + range_info.first)-(m_preCalibration_e2ch->Eval(energy[i])-fitrange);
+// 		if(new_range<2*s_factor*energy[i]){
+// 			
+// 		}
 		raw_hist->GetXaxis()->SetRangeUser(
 			m_preCalibration_e2ch->Eval(energy[i])-fitrange,
 			m_preCalibration_e2ch->Eval(energy[i]) + range_info.first
@@ -165,16 +174,18 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 		}
 
 		cerr<<"Threshold for TSpectrum "<<m_threshold<<endl;
-		TSpectrum *spec = HistAnalysis::findPeaks(raw_hist, "", s_factor * energy[i], m_threshold);
-		TF1 *fit = HistAnalysis::fitPeaks(raw_hist, spec, "+QL", "", false, "pol1", s_factor*energy[i]);
+		TSpectrum *spec = HistAnalysis::findPeaks(raw_hist, "", m_tspec_sigma, m_threshold);
+		std::cout<<"start peak fitting"<<std::endl;
+		TF1 *fit = HistAnalysis::fitPeaks(raw_hist, spec, opt, "", true, "pol0", s_factor*energy[i]/2.35);
 
 		int n_tspec_peaks = spec->GetNPeaks();
 		fit->ResetBit(512);
 
-		if (fit != 0) {
+		if (fit != 0&&fit->GetNpar()>6) {
 			result = new SDFitData(fit, n_tspec_peaks);
 			desiredPeak(i, range_info.second, energy, result, m_preCalibration_ch2e);
 			fits.push_back(result);
+			result=nullptr;
 		} else {
         	cerr << "fit failed! continue" << endl;
 		}
@@ -189,7 +200,7 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 
 		if (range_info.second>1) i += range_info.second - 1;
 	}
-
+// 	raw_hist->GetXaxis()->UnZoom();
 	return fits;
 }
 

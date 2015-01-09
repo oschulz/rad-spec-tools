@@ -39,6 +39,7 @@ public:
 
 	void setThreshold(double thresh);
 	void setSigma(float sig);
+	void setTSpecSigma(double sig);
 	void setPreCal(double slope, double intercept);
 	void setPreCal(TF1 *precal_ch2e);
 	void setWidth(double width) { m_width = width; }
@@ -47,11 +48,12 @@ public:
 	void resetPreCal();
 
 	std::vector<rspt::SDFitData*> makeCalFits(TH1* raw_hist, std::vector<double> energy,
-		double s_factor=0.0099, std::vector<bool> *reject_res_cal=0);
+                                              double s_factor=0.0099,const char* opt="Q+" , std::vector<bool> *reject_res_cal=0);
 
 	double m_maxADCch;
 
 protected:
+    double m_tspec_sigma;
 	float m_sigma;
 	bool debug;
 	double m_threshold;

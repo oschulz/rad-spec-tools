@@ -51,7 +51,41 @@ double SDFitData::getMean(size_t index) const {
 
 
 double SDFitData::getMeanError(size_t index) const {
-	getParError("peak%i_center",index);
+	return getParError("peak%i_center",index);
+}
+
+double SDFitData::getSkewFraction() const{
+	return getParValue("peak_skewFraction",-1);
+}
+
+double SDFitData::getSkewFractionError() const{
+	return getParError("peak_skewFraction",-1);
+}
+
+double SDFitData::getSkewWidth() const{
+	return getParValue("peak_skewWidth",-1);
+}
+
+double SDFitData::getSkewWidthError() const{
+	return getParError("peak_skewWidth",-1);
+}
+
+double SDFitData::getStepAmpl(size_t index) const{
+	return getParValue("peak%i_stepAmpl",index);
+}
+
+double SDFitData::getStepAmplError(size_t index) const{
+	return getParError("peak%i_stepAmpl",index);
+}
+
+double SDFitData::getPeakArea(size_t index) const
+{
+	return getParValue("peak%i_area",index);
+}
+
+double SDFitData::getPeakAreaError(size_t index) const
+{
+	return getParError("peak%i_area",index);
 }
 
 
@@ -113,9 +147,13 @@ void SDFitData::setEnergy(size_t index, double energy) {
 
 size_t SDFitData::getParNumber(const char* nameForm, size_t index) const {
 	if (!m_valid) throw invalid_argument("Invalid SDFitData");
-
-	ssize_t parNo = m_fit->GetParNumber(TString::Format(nameForm, int(index)));
-	if (parNo < 0) throw out_of_range("No such fit parameter");
+	ssize_t parNo;
+	if(index>=0){
+		parNo = m_fit->GetParNumber(TString::Format(nameForm, int(index)));
+	}else if(index==-1){
+		parNo = m_fit->GetParNumber(nameForm);
+	}
+	if (parNo < 0) throw out_of_range(Form("%s: No such fit parameter",nameForm));
 	else return parNo;
 }
 

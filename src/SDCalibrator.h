@@ -39,6 +39,7 @@ public:
 	SDCalibrator();
 	virtual ~SDCalibrator();
 
+	void clear();
 	int calibrate();
 	void addResult(SDFitData* data);
 	TList* getCalObjects() { return m_objects; }
