@@ -35,7 +35,7 @@ rootmap_DATA += .libs/librad-spec-tools.rootmap
 
 if WITH_CLING
 
-rootmap_DATA += .libs/libradmIspecmItools_rdict.pcm
+rootmap_DATA += .libs/librad@ROOTPCMDASH@spec@ROOTPCMDASH@tools_rdict.pcm
 
 librad-spec-tools_rdict.cxx: $(librad_spec_tools_la_headers) rad-spec-tools_LinkDef.h
 	$(ROOTCLING) -f $@.tmp -s librad-spec-tools@SHLIBEXT@ -rml librad-spec-tools@SHLIBEXT@ -rmf librad-spec-tools.rootmap.tmp -c $(CPPFLAGS) $(CXXFLAGS) -I$(includedir) $+
@@ -45,9 +45,9 @@ librad-spec-tools_rdict.cxx: $(librad_spec_tools_la_headers) rad-spec-tools_Link
 	$(SED) 's|\(header \+\)\([^ ].*/\)\?\([^ ].*[.]h\)|\1'$(PACKAGE)/'\3|' librad-spec-tools.rootmap.tmp > librad-spec-tools.rootmap && $(RM) librad-spec-tools.rootmap.tmp
 
 .libs/librad-spec-tools.rootmap: librad-spec-tools.la
-	cp librad-spec-tools.rootmap libradmIspecmItools_rdict.pcm .libs/
+	cp librad-spec-tools.rootmap librad@ROOTPCMDASH@spec@ROOTPCMDASH@tools_rdict.pcm .libs/
 
-.libs/libradmIspecmItools_rdict.pcm: .libs/librad-spec-tools.rootmap
+.libs/librad@ROOTPCMDASH@spec@ROOTPCMDASH@tools_rdict.pcm: .libs/librad-spec-tools.rootmap
 
 else # not WITH_CLING
 

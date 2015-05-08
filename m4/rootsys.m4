@@ -31,6 +31,15 @@ AC_DEFUN([ROOTSYS_DEPS],
 	
 	DEP_CFLAGS="$DEP_CFLAGS $ROOTSYS_CFLAGS"
 	DEP_LIBS="$ROOTSYS_LIBS $DEP_LIBS"
+
+	ROOTPCMDASH="-"
+	if test "${ROOTCLING}" != false ; then
+		touch conftest_LinkDef.h
+		"${ROOTCLING}" -f libconftest-foo_rdict.cxx -s libconftest-foo"${shrext_cmds}" conftest_LinkDef.h
+		test -f libconftestmIfoo_rdict.pcm && ROOTPCMDASH="mI"
+		rm -f conftest_LinkDef.h libconftest-foo_rdict.cxx libconftest-foo_rdict.pcm libconftestmIfoo_rdict.pcm
+	fi
+	AC_SUBST(ROOTPCMDASH)
 ])
 
 
