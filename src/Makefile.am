@@ -38,11 +38,11 @@ if WITH_CLING
 rootmap_DATA += .libs/libradmIspecmItools_rdict.pcm
 
 librad-spec-tools_rdict.cxx: $(librad_spec_tools_la_headers) rad-spec-tools_LinkDef.h
-	$(ROOTCLING) -f $@.tmp -s librad-spec-tools@SHLIBEXT@ -rml librad-spec-tools@SHLIBEXT@ -rmf librad-spec-tools.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I$(includedir) $+
+	$(ROOTCLING) -f $@.tmp -s librad-spec-tools@SHLIBEXT@ -rml librad-spec-tools@SHLIBEXT@ -rmf librad-spec-tools.rootmap.tmp -c $(CPPFLAGS) $(CXXFLAGS) -I$(includedir) $+
 	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap:
-	$(GREP) -F -v '"'"`pwd`"'/",' $@.tmp | $(SED) 's|"\([^"]*/\)\?\([^/"]*[.]h\)",|"'$(PACKAGE)/'\2",| ; s|\\"\([^"]*/\)\?\([^/"]*[.]h\)\\"\\n"|\\"'$(PACKAGE)/'\2\\"\\n"|' > $@ && $(RM) $@.tmp
-	$(SED) 's|\$$clingAutoload\$$\([^/""]\+/\)*|$$clingAutoload$$'$(PACKAGE)'/|; /.*DICTPAYLOAD(.*/,/.*)DICTPAYLOAD.*/ s|#include "\([^/"]\+/\)*\(.*\)"|#include <'$(PACKAGE)'/\2>|' -i $@
-	$(SED) 's|\(header \+\)\([^ ].*/\)\?\([^ ].*[.]h\)|\1'$(PACKAGE)/'\3|' -i librad-spec-tools.rootmap
+	$(GREP) -F -v '"'"`pwd`"'/",' $@.tmp | $(SED) 's|"\([^"]*/\)\?\([^/"]*[.]h\)",|"'$(PACKAGE)/'\2",| ; s|\\"\([^"]*/\)\?\([^/"]*[.]h\)\\"\\n"|\\"'$(PACKAGE)/'\2\\"\\n"|' > $@.tmp2
+	$(SED) 's|\$$clingAutoload\$$\([^/""]\+/\)*|$$clingAutoload$$'$(PACKAGE)'/|; /.*DICTPAYLOAD(.*/,/.*)DICTPAYLOAD.*/ s|#include "\([^/"]\+/\)*\(.*\)"|#include <'$(PACKAGE)'/\2>|' $@.tmp2 > $@ && $(RM) $@.tmp $@.tmp2
+	$(SED) 's|\(header \+\)\([^ ].*/\)\?\([^ ].*[.]h\)|\1'$(PACKAGE)/'\3|' librad-spec-tools.rootmap.tmp > librad-spec-tools.rootmap && $(RM) librad-spec-tools.rootmap.tmp
 
 .libs/librad-spec-tools.rootmap: librad-spec-tools.la
 	cp librad-spec-tools.rootmap libradmIspecmItools_rdict.pcm .libs/
